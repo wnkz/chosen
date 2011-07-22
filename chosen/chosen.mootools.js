@@ -539,7 +539,7 @@
 			this.search_container.grab(el, 'before');
 
 			link = $(choice_id).getElement("a");
-			return link.click(__bind(function(evt){
+			return link.addEvent('click', __bind(function(evt){
 				return this.choice_destroy_link_click(evt);
 			}, this));
 
