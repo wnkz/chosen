@@ -23,7 +23,9 @@
     	chosen: function(data, options){
 
 			return this.each(function(el){
-				return new Chosen(el, data, options);
+				if (!el.hasClass("chzn-done")) {
+					return new Chosen(el, data, options);
+				}
 			});
 
     	}
