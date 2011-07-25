@@ -203,7 +203,7 @@
 					}
 
 					$(document).addEvent('click', this.click_test_action);
-					this.results_show();
+					this.results_toggle();
 
 				}else if(!this.is_multiple && evt && ($(evt.target) === this.selected_item || $(evt.target).getParents('a.chzn-single').length)){
 
@@ -415,6 +415,14 @@
 			}
 			return this.result_highlight = null;
 
+		};
+
+		Chosen.prototype.results_toggle = function() {
+			if (this.results_showing) {
+				return this.results_hide();
+			} else {
+				return this.results_show();
+			}
 		};
 
 		Chosen.prototype.results_show = function(){
