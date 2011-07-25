@@ -12,8 +12,8 @@ $ = jQuery
 
 $.fn.extend({
   chosen: (data, options) ->
-    $(this).each((input_field) -> 
-      new Chosen(this, data, options)
+    $(this).each((input_field) ->
+      new Chosen(this, data, options) unless ($ this).hasClass "chzn-done"
     )
 })
 
@@ -23,13 +23,14 @@ class Chosen
     this.set_default_values()
     
     @form_field = elmn
+    @form_field_jq = $ @form_field
     @is_multiple = @form_field.multiple
 
     @default_text_default = if @form_field.multiple then "Select Some Options" else "Select an Option"
 
     this.set_up_html()
     this.register_observers()
-
+    @form_field_jq.addClass "chzn-done"
 
   set_default_values: ->
     
@@ -44,9 +45,9 @@ class Chosen
   set_up_html: ->
     @container_id = @form_field.id + "_chzn"
     
-    @f_width = ($ @form_field).width()
+    @f_width = @form_field_jq.width()
     
-    @default_text = if ($ @form_field).attr 'title' then ($ @form_field).attr 'title' else @default_text_default
+    @default_text = if @form_field_jq.attr 'title' then @form_field_jq.attr 'title' else @default_text_default
     
     container_div = ($ "<div />", {
       id: @container_id
@@ -57,9 +58,9 @@ class Chosen
     if @is_multiple
       container_div.html '<ul class="chzn-choices"><li class="search-field"><input type="text" value="' + @default_text + '" class="default" style="width:25px;" /></li></ul><div class="chzn-drop" style="left:-9000px;"><ul class="chzn-results"></ul></div>'
     else
-      container_div.html '<a href="#" class="chzn-single"><span>' + @default_text + '</span><div><b></b></div></a><div class="chzn-drop" style="left:-9000px;"><div class="chzn-search"><input type="text" /></div><ul class="chzn-results"></ul></div>';
+      container_div.html '<a href="javascript:void(0)" class="chzn-single"><span>' + @default_text + '</span><div><b></b></div></a><div class="chzn-drop" style="left:-9000px;"><div class="chzn-search"><input type="text" /></div><ul class="chzn-results"></ul></div>'
 
-    ($ @form_field).hide().after container_div
+    @form_field_jq.hide().after container_div
     @container = ($ '#' + @container_id)
     @container.addClass( "chzn-container-" + (if @is_multiple then "multi" else "single") )
     @dropdown = @container.find('div.chzn-drop').first()
@@ -97,7 +98,7 @@ class Chosen
     @search_results.mouseover (evt) => this.search_results_mouseover(evt)
     @search_results.mouseout (evt) => this.search_results_mouseout(evt)
 
-    ($ @form_field).bind "liszt:updated", (evt) => this.results_update_field(evt)
+    @form_field_jq.bind "liszt:updated", (evt) => this.results_update_field(evt)
 
     @search_field.blur (evt) => this.input_blur(evt)
     @search_field.keyup (evt) => this.keyup_checker(evt)
@@ -119,7 +120,7 @@ class Chosen
         this.results_show()
       else if not @is_multiple and evt and ($(evt.target) is @selected_item || $(evt.target).parents("a.chzn-single").length)
         evt.preventDefault()
-        this.results_show()
+        this.results_toggle()
 
       this.activate_field()
     else
@@ -129,12 +130,12 @@ class Chosen
   mouse_leave: -> @mouse_on_container = false
 
   input_focus: (evt) ->
-    setTimeout this.container_click.bind(this), 50 unless @active_field
+    setTimeout (=> this.container_click()), 50 unless @active_field
   
   input_blur: (evt) ->
     if not @mouse_on_container
       @active_field = false
-      setTimeout this.blur_test.bind(this), 100
+      setTimeout (=> this.blur_test()), 100
 
   blur_test: (evt) ->
     this.close_field() if not @active_field and @container.hasClass "chzn-container-active"
@@ -177,7 +178,7 @@ class Chosen
   results_build: ->
     startTime = new Date()
     @parsing = true
-    @results_data = OptionsParser.select_to_array @form_field
+    @results_data = SelectParser.select_to_array @form_field
 
     if @is_multiple and @choices > 0
       @search_choices.find("li.search-choice").remove()
@@ -197,24 +198,26 @@ class Chosen
           @selected_item.find("span").text data.text
 
     this.show_search_field_default()
+    this.search_field_scale()
+    
     @search_results.html content
     @parsing = false
 
 
   result_add_group: (group) ->
     if not group.disabled
-      group.dom_id = @form_field.id + "chzn_g_" + group.id
+      group.dom_id = @form_field.id + "chzn_g_" + group.array_index
       '<li id="' + group.dom_id + '" class="group-result">' + $("<div />").text(group.label).html() + '</li>'
     else
       ""
   
   result_add_option: (option) ->
-    if not option.disabled 
-      option.dom_id = @form_field.id + "chzn_o_" + option.id
+    if not option.disabled
+      option.dom_id = @form_field.id + "chzn_o_" + option.array_index
       
       classes = if option.selected and @is_multiple then [] else ["active-result"]
       classes.push "result-selected" if option.selected
-      classes.push "group-option" if option.group_id >= 0
+      classes.push "group-option" if option.group_array_index?
       
       '<li id="' + option.dom_id + '" class="' + classes.join(' ') + '">' + $("<div />").text(option.text).html() + '</li>'
     else
@@ -227,9 +230,9 @@ class Chosen
 
   result_do_highlight: (el) ->
     if el.length
-      this.result_clear_highlight();
+      this.result_clear_highlight()
 
-      @result_highlight = el;
+      @result_highlight = el
       @result_highlight.addClass "highlighted"
 
       maxHeight = parseInt @search_results.css("maxHeight"), 10
@@ -247,6 +250,12 @@ class Chosen
   result_clear_highlight: ->
     @result_highlight.removeClass "highlighted" if @result_highlight
     @result_highlight = null
+
+  results_toggle: ->
+    if @results_showing
+      this.results_hide()
+    else
+      this.results_show()
 
   results_show: ->
     if not @is_multiple
@@ -271,9 +280,9 @@ class Chosen
 
 
   set_tab_index: (el) ->
-    if ($ @form_field).attr "tabindex"
-      ti = ($ @form_field).attr "tabindex"
-      ($ @form_field).attr "tabindex", -1
+    if @form_field_jq.attr "tabindex"
+      ti = @form_field_jq.attr "tabindex"
+      @form_field_jq.attr "tabindex", -1
 
       if @is_multiple
         @search_field.attr "tabindex", ti
@@ -291,7 +300,7 @@ class Chosen
 
   search_results_click: (evt) ->
     target = if $(evt.target).hasClass "active-result" then $(evt.target) else $(evt.target).parents(".active-result").first()
-    if target
+    if target.length
       @result_highlight = target
       this.result_select()
 
@@ -309,9 +318,9 @@ class Chosen
       this.results_show()
 
   choice_build: (item) ->
-    choice_id = @form_field.id + "_chzn_c_" + item.id
+    choice_id = @form_field.id + "_chzn_c_" + item.array_index
     @choices += 1
-    @search_container.before  '<li class="search-choice" id="' + choice_id + '"><span>' + item.text + '</span><a href="#" class="search-choice-close" rel="' + item.id + '"></a></li>'
+    @search_container.before  '<li class="search-choice" id="' + choice_id + '"><span>' + item.text + '</span><a href="javascript:void(0)" class="search-choice-close" rel="' + item.array_index + '"></a></li>'
     link = $('#' + choice_id).find("a").first()
     link.click (evt) => this.choice_destroy_link_click(evt)
 
@@ -334,11 +343,11 @@ class Chosen
       high = @result_highlight
       high_id = high.attr "id"
       
-      this.result_clear_highlight();
+      this.result_clear_highlight()
 
       high.addClass "result-selected"
       
-      if @is_multiple 
+      if @is_multiple
         this.result_deactivate high
       else
         @result_single_selected = high
@@ -347,7 +356,7 @@ class Chosen
       item = @results_data[position]
       item.selected = true
 
-      @form_field.options[item.select_index].selected = true
+      @form_field.options[item.options_index].selected = true
 
       if @is_multiple
         this.choice_build item
@@ -357,7 +366,7 @@ class Chosen
       this.results_hide()
       @search_field.val ""
 
-      ($ @form_field).trigger "change"
+      @form_field_jq.trigger "change"
       this.search_field_scale()
 
   result_activate: (el) ->
@@ -370,14 +379,14 @@ class Chosen
     result_data = @results_data[pos]
     result_data.selected = false
 
-    @form_field.options[result_data.select_index].selected = false
-    result = $(@form_field.id + "chzn_o_" + pos)
+    @form_field.options[result_data.options_index].selected = false
+    result = $("#" + @form_field.id + "chzn_o_" + pos)
     result.removeClass("result-selected").addClass("active-result").show()
 
     this.result_clear_highlight()
     this.winnow_results()
 
-    ($ @form_field).trigger "change"
+    @form_field_jq.trigger "change"
     this.search_field_scale()
 
   results_search: (evt) ->
@@ -399,14 +408,14 @@ class Chosen
     for option in @results_data
       if not option.disabled and not option.empty
         if option.group
-          $(option.dom_id).hide()
+          $('#' + option.dom_id).hide()
         else if not (@is_multiple and option.selected)
           found = false
-          result_id = @form_field.id + "chzn_o_" + option.id
+          result_id = option.dom_id
           
           if regex.test option.text
-            found = true;
-            results += 1;
+            found = true
+            results += 1
           else if option.text.indexOf(" ") >= 0 or option.text.indexOf("[") == 0
             #TODO: replace this substitution of /\[\]/ with a list of characters to skip.
             parts = option.text.replace(/\[|\]/g, "").split(" ")
@@ -428,7 +437,7 @@ class Chosen
 
             this.result_activate $("#" + result_id)
 
-            $("#" + @results_data[option.group_id].dom_id).show() if option.group_id?
+            $("#" + @results_data[option.group_array_index].dom_id).show() if option.group_array_index?
           else
             this.result_clear_highlight() if @result_highlight and result_id is @result_highlight.attr 'id'
             this.result_deactivate $("#" + result_id)
@@ -475,7 +484,7 @@ class Chosen
 
   keyup_arrow: ->
     if not @results_showing and not @is_multiple
-      this.results_show() 
+      this.results_show()
     else if @result_highlight
       prev_sibs = @result_highlight.prevAll("li.active-result")
       
@@ -511,7 +520,9 @@ class Chosen
       when 13
         evt.preventDefault()
         this.result_select() if this.results_showing
-      when 9, 13, 38, 40, 16
+      when 27
+        this.results_hide() if @results_showing
+      when 9, 38, 40, 16
         # don't do anything on these keys
       else this.results_search()
 
@@ -552,7 +563,8 @@ class Chosen
       for style in styles
         style_block += style + ":" + @search_field.css(style) + ";"
       
-      div = $('<div />', { 'style' : style_block }).text @search_field.val()
+      div = $('<div />', { 'style' : style_block })
+      div.text @search_field.val()
       $('body').append div
 
       w = div.width() + 25
@@ -571,11 +583,10 @@ get_side_border_padding = (elmt) ->
 
 root.get_side_border_padding = get_side_border_padding
 
-class OptionsParser
+class SelectParser
   
   constructor: ->
-    @group_index = 0
-    @sel_index = 0
+    @options_index = 0
     @parsed = []
 
   add_node: (child) ->
@@ -585,38 +596,38 @@ class OptionsParser
       this.add_option child
 
   add_group: (group) ->
-    group_id = @sel_index + @group_index
+    group_position = @parsed.length
     @parsed.push
-      id: group_id
+      array_index: group_position
       group: true
       label: group.label
-      position: @group_index
       children: 0
       disabled: group.disabled
-    this.add_option( option, group_id, group.disabled ) for option in group.childNodes
-    @group_index += 1
+    this.add_option( option, group_position, group.disabled ) for option in group.childNodes
 
-  add_option: (option, group_id, group_disabled) ->
+  add_option: (option, group_position, group_disabled) ->
     if option.nodeName is "OPTION"
       if option.text != ""
-        if group_id || group_id is 0
-          @parsed[group_id].children += 1
+        if group_position?
+          @parsed[group_position].children += 1
         @parsed.push
-          id: @sel_index + @group_index
-          select_index: @sel_index
+          array_index: @parsed.length
+          options_index: @options_index
           value: option.value
           text: option.text
           selected: option.selected
-          disabled: ((group_disabled is true) ? group_disabled : option.disabled)
-          group_id: group_id
+          disabled: if group_disabled is true then group_disabled else option.disabled
+          group_array_index: group_position
       else
         @parsed.push
+          array_index: @parsed.length
+          options_index: @options_index
           empty: true
-      @sel_index += 1
+      @options_index += 1
 
-OptionsParser.select_to_array = (select) ->
-  parser = new OptionsParser()
+SelectParser.select_to_array = (select) ->
+  parser = new SelectParser()
   parser.add_node( child ) for child in select.childNodes
   parser.parsed
   
-root.OptionsParser = OptionsParser
+root.SelectParser = SelectParser
