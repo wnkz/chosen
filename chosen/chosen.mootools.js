@@ -8,7 +8,7 @@
   Copyright (c) 2011 by Harvest
   */
 
-	var Chosen, OptionsParser, get_side_border_padding, root;
+	var Chosen, SelectParser, get_side_border_padding, root;
 
 	var __bind = function(fn, me){
 		return function(){
@@ -297,7 +297,7 @@
 			var content, data, startTime, _i, _len, _ref;
 			startTime = new Date();
 			this.parsing = true;
-			this.results_data = OptionsParser.select_to_array(this.form_field);
+			this.results_data = SelectParser.select_to_array(this.form_field);
 
 			if(this.is_multiple && this.choices > 0){
 
@@ -339,7 +339,7 @@
 
 			if(!group.disabled){
 
-				group.dom_id = this.form_field.id + "chzn_g_" + group.id;
+				group.dom_id = this.form_field.id + "chzn_g_" + group.array_index;
 				return '<li id="' + group.dom_id + '" class="group-result"><div>'+ group.label + '</div></li>';
 
 			}else{
@@ -352,14 +352,14 @@
 
 			var classes;
 			if(!option.disabled){
-				option.dom_id = this.form_field.id + "chzn_o_" + option.id;
+				option.dom_id = this.form_field.id + "chzn_o_" + option.array_index;
 				classes = option.selected && this.is_multiple ? [] : ["active-result"];
 
 				if(option.selected){
 					classes.push("result-selected");
 				}
 
-				if(option.group_id >= 0){
+				if(option.group_array_index != null){
 					classes.push("group-option");
 				}
 
@@ -537,12 +537,12 @@
 		Chosen.prototype.choice_build = function(item){
 			var choice_id, link;
 
-			choice_id = this.form_field.id + "_chzn_c_" + item.id;
+			choice_id = this.form_field.id + "_chzn_c_" + item.array_index;
 			this.choices += 1;
 
 			var el = new Element('li', {'id': choice_id})
 						.addClass('search-choice')
-						.set('html', '<span>' + item.text + '</span><a href="#" class="search-choice-close" rel="' + item.id + '"></a>');
+						.set('html', '<span>' + item.text + '</span><a href="#" class="search-choice-close" rel="' + item.array_index + '"></a>');
 
 			this.search_container.grab(el, 'before');
 
@@ -593,7 +593,7 @@
 				position = high_id.substr(high_id.lastIndexOf("_") + 1);
 				item = this.results_data[position];
 				item.selected = true;
-				this.form_field.options[item.select_index].selected = true;
+				this.form_field.options[item.options_index].selected = true;
 
 				if(this.is_multiple){
 					this.choice_build(item);
@@ -628,7 +628,7 @@
 
 			result_data = this.results_data[pos];
 			result_data.selected = false;
-			this.form_field.options[result_data.select_index].selected = false;
+			this.form_field.options[result_data.options_index].selected = false;
 			result = $(this.form_field.id + "chzn_o_" + pos);
 			result.removeClass("result-selected").addClass("active-result").setStyle('display', 'block');
 			this.result_clear_highlight();
@@ -670,7 +670,7 @@
 						$(option.dom_id).setStyle('display', 'none');
 					}else if(!(this.is_multiple && option.selected)){
 						found = false;
-						result_id = this.form_field.id + "chzn_o_" + option.id;
+						result_id = option.dom_id
 
 						if(regex.test(option.text)){
 							found = true;
@@ -714,8 +714,8 @@
 
 							this.result_activate($(result_id));
 
-							if(option.group_id != null){
-								$(this.results_data[option.group_id].dom_id).setStyle('display', 'block');
+							if(option.group_array_index != null){
+								$(this.results_data[option.group_array_index].dom_id).setStyle('display', 'block');
 							}
 
 						}else{
@@ -986,15 +986,14 @@
 
 	root.get_side_border_padding = get_side_border_padding;
 
-	OptionsParser = (function(){
+	SelectParser = (function(){
 
-		function OptionsParser(){
-			this.group_index = 0;
-			this.sel_index = 0;
+		function SelectParser(){
+			this.options_index = 0;
 			this.parsed = [];
 		}
 
-		OptionsParser.prototype.add_node = function(child){
+		SelectParser.prototype.add_node = function(child){
 
 			if(child.nodeName === "OPTGROUP"){
 				return this.add_group(child);
@@ -1003,74 +1002,75 @@
 			}
 		};
 
-		OptionsParser.prototype.add_group = function(group){
-			var group_id, option, _i, _len, _ref;
+		SelectParser.prototype.add_group = function(group){
+			var group_position, option, _i, _len, _ref, _results;
 
-			group_id = this.sel_index + this.group_index;
+			group_position = this.parsed.length;
 			this.parsed.push({
-				id: group_id,
+				array_index: group_position,
 				group: true,
 				label: group.label,
-				position: this.group_index,
 				children: 0,
 				disabled: group.disabled
 			});
 
 			_ref = group.childNodes;
-
+			_results = [];
 			for (_i = 0, _len = _ref.length; _i < _len; _i++){
 				option = _ref[_i];
-				this.add_option(option, group_id, group.disabled);
+				_results.push(this.add_option(option, group_position, group.disabled));
 			}
 
-			return this.group_index += 1;
+			return _results;
 
 		};
 
-		OptionsParser.prototype.add_option = function(option, group_id, group_disabled){
+		SelectParser.prototype.add_option = function(option, group_position, group_disabled){
 			var _ref;
 
 			if(option.nodeName === "OPTION"){
 
 				if(option.text !== ""){
 
-					if(group_id || group_id === 0){
-						this.parsed[group_id].children += 1;
+					if (group_position != null) {
+						this.parsed[group_position].children += 1;
 					}
 
 					this.parsed.push({
-						id: this.sel_index + this.group_index,
-						select_index: this.sel_index,
+						array_index: this.parsed.length,
+						options_index: this.options_index,
 						value: option.value,
 						text: option.text,
 						selected: option.selected,
 						disabled: (_ref = group_disabled === true) != null ? _ref : {
 							group_disabled: option.disabled
 						},
-						group_id: group_id
+						group_array_index: group_position
 					});
 
 				}else{
 
 					this.parsed.push({
+						array_index: this.parsed.length,
+						options_index: this.options_index,
 						empty: true
 					});
 
 				}
 
-				return this.sel_index += 1;
+				return this.options_index += 1;
 
 			}
 
 		};
 
-		return OptionsParser;
+		return SelectParser;
 	})();
 
-	OptionsParser.select_to_array = function(select){
+	SelectParser.select_to_array = function(select){
 		var child, parser, _i, _len, _ref;
 
-		parser = new OptionsParser();
+		parser = new SelectParser();
 		_ref = select.childNodes;
 
 		for(_i = 0, _len = _ref.length; _i < _len; _i++){
@@ -1081,6 +1081,6 @@
 		return parser.parsed;
 	};
 
-	root.OptionsParser = OptionsParser;
+	root.SelectParser = SelectParser;
 
 }).call(this);
