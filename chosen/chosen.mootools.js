@@ -72,7 +72,7 @@
 				'id': 		this.container_id,
 				'class': 	'chzn-container'
 			}).setStyles({
-				'width': 	(this.f_width + 2)
+				'width': 	this.f_width
 			});
 
 			if(this.is_multiple){
@@ -114,7 +114,7 @@
 				this.selected_item = this.container.getElement('.chzn-single');
 
 				sf_width = dd_width - get_side_border_padding(this.search_container) - get_side_border_padding(this.search_field);
-				this.search_field.setStyle('width', (sf_width - 25));
+				this.search_field.setStyle('width', sf_width);
 
 			}
 
@@ -933,41 +933,27 @@
 			var dd_top, div, h, style, style_block, styles, w, _i, _len;
 
 			if(this.is_multiple){
-
 				h = 0;
 				w = 0;
-				style_block = "position:absolute; left: -1000px; top: -1000px; display:none;";
-				styles = ['font-size', 'font-style', 'font-weight', 'font-family', 'line-height', 'text-transform', 'letter-spacing'];
-
-				for (_i = 0, _len = styles.length; _i < _len; _i++){
-					style = styles[_i];
-					style_block += style + ":" + this.search_field.getStyle(style) + ";";
-				}
-
-				div = new Element('div').setStyles({
-					'position': 'absolute',
-					'left': 	-1000,
-					'top': 		-1000,
-					'display': 	'none'
-				}).set('text', this.search_field.get('value'));
-
-				$(document.body).grab(div);
-
+				style_block = {
+					position: 'absolute',
+					visibility: 'hidden'
+				};
+				styles = this.search_field.getStyles('font-size', 'font-style', 'font-weight', 'font-family', 'line-height', 'text-transform', 'letter-spacing');
+				Object.merge(style_block, styles);
+				div = new Element('div', {
+					'styles': style_block
+				});
+				div.set('text', this.search_field.get('value'));
+				document.body.grab(div);
 				w = div.getCoordinates().width + 25;
 				div.destroy();
-
-				if(w > this.f_width - 10){
+				if (w > this.f_width - 10) {
 					w = this.f_width - 10;
 				}
-
-				this.search_field.setStyles({
-					'width': w + 'px'
-				});
-
+				this.search_field.setStyle('width', w);
 				dd_top = this.container.getCoordinates().height;
-				return this.dropdown.setStyles({
-					"top": dd_top + "px"
-				});
+				return this.dropdown.setStyle('top', dd_top);
 			}
 
 		};
@@ -977,9 +963,17 @@
 	})();
 
 	get_side_border_padding = function(elmt){
-		var side_border_padding;
-
-		return side_border_padding = elmt.getCoordinates().width - elmt.getCoordinates().width;
+		var styles = elmt.getStyles('padding-left', 'padding-right', 'border-left-width', 'border-right-width');
+		var notNull = Object.filter(styles, function(value){
+			return (typeof(value) == 'string');
+		});
+		var mapped = Object.map(notNull, function(s){ return s.toInt();});
+		var array = Object.values(mapped);
+		var result = 0, l = array.length;
+		if (l){
+			while (l--) result += array[l];
+		}
+		return result;
 	};
 
 	root.get_side_border_padding = get_side_border_padding;
