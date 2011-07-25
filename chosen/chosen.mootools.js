@@ -64,9 +64,9 @@
 			var container_div, dd_top, dd_width, sf_width;
 
 			this.container_id = this.form_field.id + "_chzn";
-			this.f_width = $(this.form_field).getCoordinates().width;
+			this.f_width = this.form_field.getCoordinates().width;
 
-			this.default_text = this.form_field.getProperty('title') ? $(this.form_field).getProperty('title') : this.default_text_default;
+			this.default_text = this.form_field.getProperty('title') ? this.form_field.getProperty('title') : this.default_text_default;
 
 			container_div = new Element('div', {
 				'id': 		this.container_id,
@@ -472,9 +472,9 @@
 		Chosen.prototype.set_tab_index = function(el){
 
 			var ti;
-			if(($(this.form_field)).getProperty('tabindex')){
-				ti = ($(this.form_field)).getProperty('tabindex');
-				($(this.form_field)).setProperty('tabindex', -1);
+			if(this.form_field.getProperty('tabindex')){
+				ti = this.form_field.getProperty('tabindex');
+				this.form_field.setProperty('tabindex', -1);
 
 				if(this.is_multiple){
 					return this.search_field.setProperty('tabindex', ti);
@@ -604,7 +604,7 @@
 
 				this.results_hide();
 				this.search_field.set('value', "");
-				($(this.form_field)).fireEvent("change");
+				this.form_field.fireEvent("change");
 
 				return this.search_field_scale();
 
@@ -635,7 +635,7 @@
 			this.result_clear_highlight();
 			this.winnow_results();
 
-			($(this.form_field)).fireEvent("change");
+			this.form_field.fireEvent("change");
 			return this.search_field_scale();
 
 		};
