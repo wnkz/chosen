@@ -841,7 +841,7 @@
 				this.choice_destroy(this.pending_backstroke.getElement("a"));
 				return this.clear_backstroke();
 			}else{
-				this.pending_backstroke = this.search_container.getLast("li.search-choice");
+				this.pending_backstroke = this.search_choices.getLast("li.search-choice");
 				return this.pending_backstroke.addClass("search-choice-focus");
 			}
 		};
