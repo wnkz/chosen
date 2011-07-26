@@ -60,7 +60,7 @@
 			this.container_id = this.form_field.id + "_chzn";
 			this.f_width = this.form_field.getCoordinates().width;
 
-			this.default_text = this.form_field.getProperty('title') ? this.form_field.getProperty('title') : this.default_text_default;
+			this.default_text = this.form_field.get('title') ? this.form_field.get('title') : this.default_text_default;
 
 			container_div = new Element('div', {
 				'id': 		this.container_id,
@@ -221,8 +221,8 @@
 			$(document).removeEvent('click', this.click_test_action);
 
 			if(!this.is_multiple){
-				this.selected_item.setProperty('tabindex', this.search_field.getProperty('tabindex'));
-				this.search_field.setProperty('tabindex', -1);
+				this.selected_item.set('tabindex', this.search_field.get('tabindex'));
+				this.search_field.set('tabindex', -1);
 			}
 
 			this.active_field = false;
@@ -239,8 +239,8 @@
 		Chosen.prototype.activate_field = function(){
 
 			if(!this.is_multiple && !this.active_field){
-				this.search_field.setProperty('tabindex', this.selected_item.getProperty('tabindex'));
-				this.selected_item.setProperty('tabindex', -1);
+				this.search_field.set('tabindex', this.selected_item.get('tabindex'));
+				this.selected_item.set('tabindex', -1);
 			}
 			this.container.addClass("chzn-container-active");
 			this.active_field = true;
@@ -440,15 +440,15 @@
 		Chosen.prototype.set_tab_index = function(el){
 
 			var ti;
-			if(this.form_field.getProperty('tabindex')){
-				ti = this.form_field.getProperty('tabindex');
-				this.form_field.setProperty('tabindex', -1);
+			if(this.form_field.get('tabindex')){
+				ti = this.form_field.get('tabindex');
+				this.form_field.set('tabindex', -1);
 
 				if(this.is_multiple){
-					return this.search_field.setProperty('tabindex', ti);
+					return this.search_field.set('tabindex', ti);
 				}else{
-					this.selected_item.setProperty('tabindex', ti);
-					return this.search_field.setProperty('tabindex', -1);
+					this.selected_item.set('tabindex', ti);
+					return this.search_field.set('tabindex', -1);
 				}
 			}
 
@@ -536,7 +536,7 @@
 			if(this.is_multiple && this.choices > 0 && this.search_field.value.length < 1){
 				this.results_hide();
 			}
-			this.result_deselect(link.getProperty("rel"));
+			this.result_deselect(link.get("rel"));
 			return link.getParent('li').destroy();
 
 		};
@@ -547,7 +547,7 @@
 			if(this.result_highlight){
 
 				high = this.result_highlight;
-				high_id = high.getProperty("id");
+				high_id = high.get("id");
 				this.result_clear_highlight();
 				high.addClass("result-selected");
 
@@ -687,7 +687,7 @@
 
 						}else{
 
-							if(this.result_highlight && result_id === this.result_highlight.getProperty('id')){
+							if(this.result_highlight && result_id === this.result_highlight.get('id')){
 
 								this.result_clear_highlight();
 
