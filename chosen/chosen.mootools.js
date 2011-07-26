@@ -260,8 +260,6 @@
 
 		Chosen.prototype.results_build = function(){
 
-			var content, data, startTime, _i, _len, _ref;
-			startTime = new Date();
 			this.parsing = true;
 			this.results_data = SelectParser.select_to_array(this.form_field);
 
@@ -276,12 +274,8 @@
 
 			}
 
-			content = '';
-			_ref = this.results_data;
-
-			for(_i = 0, _len = _ref.length; _i < _len; _i++){
-
-				data = _ref[_i];
+			var content = '';
+			this.results_data.each(function(data){
 				if(data.group){
 					content += this.result_add_group(data);
 				}else if(!data.empty){
@@ -292,7 +286,7 @@
 						this.selected_item.getElements("span").set('text', data.text);
 					}
 				}
-			}
+			});
 
 			this.show_search_field_default();
 			this.search_field_scale();
@@ -613,19 +607,15 @@
 		};
 
 		Chosen.prototype.winnow_results = function(){
-			var found, option, part, parts, regex, result_id, results, searchText, startTime, startpos, text, zregex, _i, _j, _len, _len2, _ref;
+			var found, option, parts, regex, result_id, results, searchText, startpos, text, zregex;
 
-			startTime = new Date();
 			this.no_results_clear();
 			results = 0;
 			searchText = this.search_field.get('value') === this.default_text ? "" : this.search_field.get('value').trim();
 			regex = new RegExp('^' + searchText.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&"), 'i');
 			zregex = new RegExp(searchText.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&"), 'i');
-			_ref = this.results_data;
-
-			for(_i = 0, _len = _ref.length; _i < _len; _i++){
-
-				option = _ref[_i];
+			
+			this.results_data.each(function(option){
 
 				if(!option.disabled && !option.empty){
 
@@ -642,17 +632,12 @@
 							parts = option.text.replace(/\[|\]/g, "").split(" ");
 
 							if(parts.length){
-
-								for(_j = 0, _len2 = parts.length; _j < _len2; _j++){
-									part = parts[_j];
-
+								parts.each(function(part){
 									if(regex.test(part)){
 										found = true;
 										results += 1;
 									}
-
-								}
-
+								});
 							}
 
 						}
@@ -697,7 +682,8 @@
 
 				}
 
-			}
+			});
+			
 
 			if(results < 1 && searchText.length){
 				return this.no_results(searchText);
@@ -708,21 +694,14 @@
 		};
 
 		Chosen.prototype.winnow_results_clear = function(){
-			var li, lis, _i, _len, _results;
 
 			this.search_field.set('value', '');
-			lis = this.search_results.getElements("li");
-			_results = [];
-
-			for(_i = 0, _len = lis.length; _i < _len; _i++){
-
-				li = lis[_i];
+			var _results = [];
+			this.search_results.getElements("li").each(function(li){
 				_results.push(li.hasClass("group-result") ? li.setStyle('display', 'block') : !this.is_multiple || !li.hasClass("result-selected") ? this.result_activate(li) : void 0);
-
-			}
+			});
 
 			return _results;
-
 		};
 
 		Chosen.prototype.winnow_results_set_highlight = function(){
@@ -962,7 +941,7 @@
 		};
 
 		SelectParser.prototype.add_group = function(group){
-			var group_position, option, _i, _len, _ref, _results;
+			var group_position, option, _results;
 
 			group_position = this.parsed.length;
 			this.parsed.push({
@@ -973,12 +952,10 @@
 				disabled: group.disabled
 			});
 
-			_ref = group.childNodes;
 			_results = [];
-			for (_i = 0, _len = _ref.length; _i < _len; _i++){
-				option = _ref[_i];
+			group.getChildren().each(function(option){
 				_results.push(this.add_option(option, group_position, group.disabled));
-			}
+			});
 
 			return _results;
 
@@ -1024,16 +1001,12 @@
 	})();
 
 	SelectParser.select_to_array = function(select){
-		var child, parser, _i, _len, _ref;
+		var parser = new SelectParser()
 
-		parser = new SelectParser();
-		_ref = select.childNodes;
-
-		for(_i = 0, _len = _ref.length; _i < _len; _i++){
-			child = _ref[_i];
+		select.getChildren().each(function(child){
 			parser.add_node(child);
-		}
-
+		});
+	
 		return parser.parsed;
 	};
 
