@@ -168,10 +168,10 @@
 
 					}
 
-					$(document).addEvent('click', this.click_test_action);
+					document.addEvent('click', this.click_test_action);
 					this.results_toggle();
 
-				}else if(!this.is_multiple && evt && ($(evt.target) === this.selected_item || $(evt.target).getParents('a.chzn-single').length)){
+				}else if(!this.is_multiple && evt && (evt.target === this.selected_item || evt.target.getParents('a.chzn-single').length)){
 
 					evt.preventDefault();
 					this.results_show();
@@ -216,7 +216,7 @@
 		};
 
 		Chosen.prototype.close_field = function(){
-			$(document).removeEvent('click', this.click_test_action);
+			document.removeEvent('click', this.click_test_action);
 
 			if(!this.is_multiple){
 				this.selected_item.set('tabindex', this.search_field.get('tabindex'));
@@ -250,7 +250,7 @@
 
 		Chosen.prototype.test_active_click = function(evt){
 
-			if($(evt.target).getParents('#' + this.container.id).length){
+			if(evt.target.getParents('#' + this.container.id).length){
 				return this.active_field = true;
 			}else{
 				return this.close_field();
@@ -464,7 +464,7 @@
 		Chosen.prototype.search_results_click = function(evt){
 
 			var target;
-			target = $(evt.target).hasClass("active-result") ? $(evt.target) : $(evt.target).getParent(".active-result");
+			target = evt.target.hasClass("active-result") ? evt.target : evt.target.getParent(".active-result");
 
 			if(target){
 				this.result_highlight = target;
@@ -476,7 +476,7 @@
 		Chosen.prototype.search_results_mouseover = function(evt){
 
 			var target;
-			target = $(evt.target).hasClass("active-result") ? $(evt.target) : $(evt.target).getParent(".active-result");
+			target = evt.target.hasClass("active-result") ? evt.target : evt.target.getParent(".active-result");
 			if(target){
 				return this.result_do_highlight(target);
 			}
@@ -485,7 +485,7 @@
 
 		Chosen.prototype.search_results_mouseout = function(evt){
 
-			if($(evt.target).hasClass("active-result") || $(evt.target).getParent('.active-result')){
+			if(evt.target.hasClass("active-result") || evt.target.getParent('.active-result')){
 				return this.result_clear_highlight();
 			}
 		};
@@ -493,7 +493,7 @@
 		Chosen.prototype.choices_click = function(evt){
 
 			evt.preventDefault();
-			if(this.active_field && !($(evt.target).hasClass("search-choice") || $(evt.target).getParent('.search-choice')) && !this.results_showing){
+			if(this.active_field && !(evt.target.hasClass("search-choice") || evt.target.getParent('.search-choice')) && !this.results_showing){
 				return this.results_show();
 			}
 
@@ -521,7 +521,7 @@
 			evt.preventDefault();
 
 			this.pending_destroy_click = true;
-			return this.choice_destroy($(evt.target));
+			return this.choice_destroy(evt.target);
 
 		};
 
@@ -717,7 +717,6 @@
 			for(_i = 0, _len = lis.length; _i < _len; _i++){
 
 				li = lis[_i];
-				li = $(li);
 				_results.push(li.hasClass("group-result") ? li.setStyle('display', 'block') : !this.is_multiple || !li.hasClass("result-selected") ? this.result_activate(li) : void 0);
 
 			}
@@ -762,7 +761,7 @@
 				first_active = this.search_results.getElement("li.active-result");
 
 				if(first_active){
-					this.result_do_highlight($(first_active));
+					this.result_do_highlight(first_active);
 				}
 
 			}else if(this.results_showing){
