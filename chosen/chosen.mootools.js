@@ -65,9 +65,7 @@
 			container_div = new Element('div', {
 				'id': 		this.container_id,
 				'class': 	'chzn-container'
-			}).setStyles({
-				'width': 	this.f_width
-			});
+			}).setStyle('width', this.f_width);
 
 			if(this.is_multiple){
 
@@ -410,7 +408,7 @@
 			dd_top = this.is_multiple ? this.container.getCoordinates().height : this.container.getCoordinates().height - 1;
 
 			this.dropdown.setStyles({
-				"top": dd_top + "px",
+				"top": dd_top,
 				"left": 0
 			});
 
@@ -429,9 +427,7 @@
 			}
 
 			this.result_clear_highlight();
-			this.dropdown.setStyles({
-				"left": "-9000px"
-			});
+			this.dropdown.setStyle('left', -9000);
 
 			return this.results_showing = false;
 
