@@ -120,25 +120,25 @@
 
 		Chosen.prototype.register_observers = function(){
 
-			this.container.addEvent("click", this.container_click.bind(this));
+			this.container.addEvents({
+				click: this.container_click.bind(this),
+				mouseenter: this.mouse_enter.bind(this),
+				mouseleave: this.mouse_leave.bind(this)
+			});
 
-			this.container.addEvent("mouseenter", this.mouse_enter.bind(this));
-
-			this.container.addEvent("mouseleave", this.mouse_leave.bind(this));
-
-			this.search_results.addEvent("click", this.search_results_click.bind(this));
-
-			this.search_results.addEvent("mouseover", this.search_results_mouseover.bind(this));
-
-			this.search_results.addEvent("mouseout", this.search_results_mouseout.bind(this));
+			this.search_results.addEvents({
+				click: this.search_results_click.bind(this),
+				mouseover: this.search_results_mouseover.bind(this),
+				mouseout: this.search_results_mouseout.bind(this)
+			});
 
 			this.form_field.addEvent("liszt:updated", this.results_update_field.bind(this));
 
-			this.search_field.addEvent("blur", this.input_blur.bind(this));
-
-			this.search_field.addEvent("keyup", this.keyup_checker.bind(this));
-
-			this.search_field.addEvent("keydown", this.keydown_checker.bind(this));
+			this.search_field.addEvents({
+				blur: this.input_blur.bind(this),
+				keyup: this.keyup_checker.bind(this),
+				keydown: this.keydown_checker.bind(this)
+			});
 
 			if(this.is_multiple){
 
