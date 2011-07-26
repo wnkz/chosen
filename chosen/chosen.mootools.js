@@ -831,13 +831,10 @@
 		};
 
 		Chosen.prototype.keyup_checker = function(evt){
-			var stroke, _ref;
-
-			stroke = (_ref = evt.code) != null ? _ref : evt.keyCode;
 			this.search_field_scale();
 
-			switch (stroke){
-				case 8:
+			switch (evt.key){
+				case 'backspace':
 
 					if(this.is_multiple && this.backstroke_length < 1 && this.choices > 0){
 						return this.keydown_backstroke();
@@ -847,22 +844,22 @@
 					}
 					break;
 
-				case 13:
+				case 'enter':
 
 					evt.preventDefault();
 					if(this.results_showing){
 						return this.result_select();
 					}
 					break;
-				case 27:
+				case 'esc':
 					if (this.results_showing) {
 						return this.results_hide();
 					}
 					break;
-				case 9:
-				case 38:
-				case 40:
-				case 16:
+				case 'tab':
+				case 'up':
+				case 'down':
+				case 'shift':
 					break;
 
 				default:
@@ -873,34 +870,31 @@
 		};
 
 		Chosen.prototype.keydown_checker = function(evt){
-			var stroke, _ref;
-
-			stroke = (_ref = evt.code) != null ? _ref : evt.keyCode;
 			this.search_field_scale();
 
-			if(stroke !== 8 && this.pending_backstroke){
+			if(evt.key !== 'backspace' && this.pending_backstroke){
 				this.clear_backstroke();
 			}
 
-			switch(stroke){
-				case 8:
+			switch(evt.key){
+				case 'backspace':
 					this.backstroke_length = this.search_field.value.length;
 					break;
 
-				case 9:
+				case 'tab':
 					this.mouse_on_container = false;
 					break;
 
-				case 13:
+				case 'enter':
 					evt.preventDefault();
 					break;
 
-				case 38:
+				case 'up':
 					evt.preventDefault();
 					this.keyup_arrow();
 					break;
 
-				case 40:
+				case 'down':
 					this.keydown_arrow();
 					break;
 			}
