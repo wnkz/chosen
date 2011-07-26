@@ -10,12 +10,6 @@
 
 	var Chosen, SelectParser, get_side_border_padding, root;
 
-	var __bind = function(fn, me){
-		return function(){
-			return fn.apply(me, arguments);
-		};
-	};
-
 	root = typeof exports !== "undefined" && exports !== null ? exports : this;
 
   	Elements.implement({
@@ -47,9 +41,7 @@
 
 		Chosen.prototype.set_default_values = function(){
 
-			this.click_test_action = __bind(function(evt){
-				return this.test_active_click(evt);
-			}, this);
+			this.click_test_action = this.test_active_click.bind(this);
 
 			this.active_field = false;
 			this.mouse_on_container = false;
@@ -128,61 +120,35 @@
 
 		Chosen.prototype.register_observers = function(){
 
-			this.container.addEvent("click", __bind(function(evt){
-				return this.container_click(evt);
-			}, this));
+			this.container.addEvent("click", this.container_click.bind(this));
 
-			this.container.addEvent("mouseenter", __bind(function(evt){
-				return this.mouse_enter(evt);
-			}, this));
+			this.container.addEvent("mouseenter", this.mouse_enter.bind(this));
 
-			this.container.addEvent("mouseleave", __bind(function(evt){
-				return this.mouse_leave(evt);
-			}, this));
+			this.container.addEvent("mouseleave", this.mouse_leave.bind(this));
 
-			this.search_results.addEvent("click", __bind(function(evt){
-				return this.search_results_click(evt);
-			}, this));
+			this.search_results.addEvent("click", this.search_results_click.bind(this));
 
-			this.search_results.addEvent("mouseover", __bind(function(evt){
-				return this.search_results_mouseover(evt);
-			}, this));
+			this.search_results.addEvent("mouseover", this.search_results_mouseover.bind(this));
 
-			this.search_results.addEvent("mouseout", __bind(function(evt){
-				return this.search_results_mouseout(evt);
-			}, this));
+			this.search_results.addEvent("mouseout", this.search_results_mouseout.bind(this));
 
-			this.form_field.addEvent("liszt:updated", __bind(function(evt){
-				return this.results_update_field(evt);
-			}, this));
+			this.form_field.addEvent("liszt:updated", this.results_update_field.bind(this));
 
-			this.search_field.addEvent("blur", __bind(function(evt){
-				return this.input_blur(evt);
-			}, this));
+			this.search_field.addEvent("blur", this.input_blur.bind(this));
 
-			this.search_field.addEvent("keyup", __bind(function(evt){
-				return this.keyup_checker(evt);
-			}, this));
+			this.search_field.addEvent("keyup", this.keyup_checker.bind(this));
 
-			this.search_field.addEvent("keydown", __bind(function(evt){
-				return this.keydown_checker(evt);
-			}, this));
+			this.search_field.addEvent("keydown", this.keydown_checker.bind(this));
 
 			if(this.is_multiple){
 
-				this.search_choices.addEvent("click", __bind(function(evt){
-					return this.choices_click(evt);
-				}, this));
+				this.search_choices.addEvent("click", this.choices_click.bind(this));
 
-				return this.search_field.addEvent("focus", __bind(function(evt){
-					return this.input_focus(evt);
-				}, this));
+				return this.search_field.addEvent("focus", this.input_focus.bind(this));
 
 			}else{
 
-				return this.selected_item.addEvent("focus", __bind(function(evt){
-					return this.activate_field(evt);
-				}, this));
+				return this.selected_item.addEvent("focus", this.activate_field.bind(this));
 
 			}
 
@@ -550,9 +516,7 @@
 			this.search_container.grab(el, 'before');
 
 			link = $(choice_id).getElement("a");
-			return link.addEvent('click', __bind(function(evt){
-				return this.choice_destroy_link_click(evt);
-			}, this));
+			return link.addEvent('click', this.choice_destroy_link_click.bind(this));
 
 		};
 
