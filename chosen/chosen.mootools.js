@@ -10,12 +10,6 @@
 
 	var Chosen, SelectParser, get_side_border_padding, root;
 
-	var __bind = function(fn, me){
-		return function(){
-			return fn.apply(me, arguments);
-		};
-	};
-
 	root = typeof exports !== "undefined" && exports !== null ? exports : this;
 
   	Elements.implement({
@@ -47,9 +41,7 @@
 
 		Chosen.prototype.set_default_values = function(){
 
-			this.click_test_action = __bind(function(evt){
-				return this.test_active_click(evt);
-			}, this);
+			this.click_test_action = this.test_active_click.bind(this);
 
 			this.active_field = false;
 			this.mouse_on_container = false;
@@ -68,14 +60,12 @@
 			this.container_id = this.form_field.id + "_chzn";
 			this.f_width = this.form_field.getCoordinates().width;
 
-			this.default_text = this.form_field.getProperty('title') ? this.form_field.getProperty('title') : this.default_text_default;
+			this.default_text = this.form_field.get('title') ? this.form_field.get('title') : this.default_text_default;
 
 			container_div = new Element('div', {
 				'id': 		this.container_id,
 				'class': 	'chzn-container'
-			}).setStyles({
-				'width': 	this.f_width
-			});
+			}).setStyle('width', this.f_width);
 
 			if(this.is_multiple){
 
@@ -128,61 +118,35 @@
 
 		Chosen.prototype.register_observers = function(){
 
-			this.container.addEvent("click", __bind(function(evt){
-				return this.container_click(evt);
-			}, this));
+			this.container.addEvents({
+				click: this.container_click.bind(this),
+				mouseenter: this.mouse_enter.bind(this),
+				mouseleave: this.mouse_leave.bind(this)
+			});
 
-			this.container.addEvent("mouseenter", __bind(function(evt){
-				return this.mouse_enter(evt);
-			}, this));
+			this.search_results.addEvents({
+				click: this.search_results_click.bind(this),
+				mouseover: this.search_results_mouseover.bind(this),
+				mouseout: this.search_results_mouseout.bind(this)
+			});
 
-			this.container.addEvent("mouseleave", __bind(function(evt){
-				return this.mouse_leave(evt);
-			}, this));
+			this.form_field.addEvent("liszt:updated", this.results_update_field.bind(this));
 
-			this.search_results.addEvent("click", __bind(function(evt){
-				return this.search_results_click(evt);
-			}, this));
-
-			this.search_results.addEvent("mouseover", __bind(function(evt){
-				return this.search_results_mouseover(evt);
-			}, this));
-
-			this.search_results.addEvent("mouseout", __bind(function(evt){
-				return this.search_results_mouseout(evt);
-			}, this));
-
-			this.form_field.addEvent("liszt:updated", __bind(function(evt){
-				return this.results_update_field(evt);
-			}, this));
-
-			this.search_field.addEvent("blur", __bind(function(evt){
-				return this.input_blur(evt);
-			}, this));
-
-			this.search_field.addEvent("keyup", __bind(function(evt){
-				return this.keyup_checker(evt);
-			}, this));
-
-			this.search_field.addEvent("keydown", __bind(function(evt){
-				return this.keydown_checker(evt);
-			}, this));
+			this.search_field.addEvents({
+				blur: this.input_blur.bind(this),
+				keyup: this.keyup_checker.bind(this),
+				keydown: this.keydown_checker.bind(this)
+			});
 
 			if(this.is_multiple){
 
-				this.search_choices.addEvent("click", __bind(function(evt){
-					return this.choices_click(evt);
-				}, this));
+				this.search_choices.addEvent("click", this.choices_click.bind(this));
 
-				return this.search_field.addEvent("focus", __bind(function(evt){
-					return this.input_focus(evt);
-				}, this));
+				return this.search_field.addEvent("focus", this.input_focus.bind(this));
 
 			}else{
 
-				return this.selected_item.addEvent("focus", __bind(function(evt){
-					return this.activate_field(evt);
-				}, this));
+				return this.selected_item.addEvent("focus", this.activate_field.bind(this));
 
 			}
 
@@ -204,10 +168,10 @@
 
 					}
 
-					$(document).addEvent('click', this.click_test_action);
+					document.addEvent('click', this.click_test_action);
 					this.results_toggle();
 
-				}else if(!this.is_multiple && evt && ($(evt.target) === this.selected_item || $(evt.target).getParents('a.chzn-single').length)){
+				}else if(!this.is_multiple && evt && (evt.target === this.selected_item || evt.target.getParents('a.chzn-single').length)){
 
 					evt.preventDefault();
 					this.results_show();
@@ -252,11 +216,11 @@
 		};
 
 		Chosen.prototype.close_field = function(){
-			$(document).removeEvent('click', this.click_test_action);
+			document.removeEvent('click', this.click_test_action);
 
 			if(!this.is_multiple){
-				this.selected_item.setProperty('tabindex', this.search_field.getProperty('tabindex'));
-				this.search_field.setProperty('tabindex', -1);
+				this.selected_item.set('tabindex', this.search_field.get('tabindex'));
+				this.search_field.set('tabindex', -1);
 			}
 
 			this.active_field = false;
@@ -273,8 +237,8 @@
 		Chosen.prototype.activate_field = function(){
 
 			if(!this.is_multiple && !this.active_field){
-				this.search_field.setProperty('tabindex', this.selected_item.getProperty('tabindex'));
-				this.selected_item.setProperty('tabindex', -1);
+				this.search_field.set('tabindex', this.selected_item.get('tabindex'));
+				this.selected_item.set('tabindex', -1);
 			}
 			this.container.addClass("chzn-container-active");
 			this.active_field = true;
@@ -286,7 +250,7 @@
 
 		Chosen.prototype.test_active_click = function(evt){
 
-			if($(evt.target).getParents('#' + this.container.id).length){
+			if(evt.target.getParents('#' + this.container.id).length){
 				return this.active_field = true;
 			}else{
 				return this.close_field();
@@ -296,8 +260,6 @@
 
 		Chosen.prototype.results_build = function(){
 
-			var content, data, startTime, _i, _len, _ref;
-			startTime = new Date();
 			this.parsing = true;
 			this.results_data = SelectParser.select_to_array(this.form_field);
 
@@ -312,12 +274,8 @@
 
 			}
 
-			content = '';
-			_ref = this.results_data;
-
-			for(_i = 0, _len = _ref.length; _i < _len; _i++){
-
-				data = _ref[_i];
+			var content = '';
+			this.results_data.each(function(data){
 				if(data.group){
 					content += this.result_add_group(data);
 				}else if(!data.empty){
@@ -328,7 +286,7 @@
 						this.selected_item.getElements("span").set('text', data.text);
 					}
 				}
-			}
+			}, this);
 
 			this.show_search_field_default();
 			this.search_field_scale();
@@ -444,7 +402,7 @@
 			dd_top = this.is_multiple ? this.container.getCoordinates().height : this.container.getCoordinates().height - 1;
 
 			this.dropdown.setStyles({
-				"top": dd_top + "px",
+				"top": dd_top,
 				"left": 0
 			});
 
@@ -463,9 +421,7 @@
 			}
 
 			this.result_clear_highlight();
-			this.dropdown.setStyles({
-				"left": "-9000px"
-			});
+			this.dropdown.setStyle('left', -9000);
 
 			return this.results_showing = false;
 
@@ -474,15 +430,15 @@
 		Chosen.prototype.set_tab_index = function(el){
 
 			var ti;
-			if(this.form_field.getProperty('tabindex')){
-				ti = this.form_field.getProperty('tabindex');
-				this.form_field.setProperty('tabindex', -1);
+			if(this.form_field.get('tabindex')){
+				ti = this.form_field.get('tabindex');
+				this.form_field.set('tabindex', -1);
 
 				if(this.is_multiple){
-					return this.search_field.setProperty('tabindex', ti);
+					return this.search_field.set('tabindex', ti);
 				}else{
-					this.selected_item.setProperty('tabindex', ti);
-					return this.search_field.setProperty('tabindex', -1);
+					this.selected_item.set('tabindex', ti);
+					return this.search_field.set('tabindex', -1);
 				}
 			}
 
@@ -502,7 +458,7 @@
 		Chosen.prototype.search_results_click = function(evt){
 
 			var target;
-			target = $(evt.target).hasClass("active-result") ? $(evt.target) : $(evt.target).getParent(".active-result");
+			target = evt.target.hasClass("active-result") ? evt.target : evt.target.getParent(".active-result");
 
 			if(target){
 				this.result_highlight = target;
@@ -514,7 +470,7 @@
 		Chosen.prototype.search_results_mouseover = function(evt){
 
 			var target;
-			target = $(evt.target).hasClass("active-result") ? $(evt.target) : $(evt.target).getParent(".active-result");
+			target = evt.target.hasClass("active-result") ? evt.target : evt.target.getParent(".active-result");
 			if(target){
 				return this.result_do_highlight(target);
 			}
@@ -523,7 +479,7 @@
 
 		Chosen.prototype.search_results_mouseout = function(evt){
 
-			if($(evt.target).hasClass("active-result") || $(evt.target).getParent('.active-result')){
+			if(evt.target.hasClass("active-result") || evt.target.getParent('.active-result')){
 				return this.result_clear_highlight();
 			}
 		};
@@ -531,7 +487,7 @@
 		Chosen.prototype.choices_click = function(evt){
 
 			evt.preventDefault();
-			if(this.active_field && !($(evt.target).hasClass("search-choice") || $(evt.target).getParent('.search-choice')) && !this.results_showing){
+			if(this.active_field && !(evt.target.hasClass("search-choice") || evt.target.getParent('.search-choice')) && !this.results_showing){
 				return this.results_show();
 			}
 
@@ -550,9 +506,7 @@
 			this.search_container.grab(el, 'before');
 
 			link = $(choice_id).getElement("a");
-			return link.addEvent('click', __bind(function(evt){
-				return this.choice_destroy_link_click(evt);
-			}, this));
+			return link.addEvent('click', this.choice_destroy_link_click.bind(this));
 
 		};
 
@@ -561,7 +515,7 @@
 			evt.preventDefault();
 
 			this.pending_destroy_click = true;
-			return this.choice_destroy($(evt.target));
+			return this.choice_destroy(evt.target);
 
 		};
 
@@ -572,7 +526,7 @@
 			if(this.is_multiple && this.choices > 0 && this.search_field.value.length < 1){
 				this.results_hide();
 			}
-			this.result_deselect(link.getProperty("rel"));
+			this.result_deselect(link.get("rel"));
 			return link.getParent('li').destroy();
 
 		};
@@ -583,7 +537,7 @@
 			if(this.result_highlight){
 
 				high = this.result_highlight;
-				high_id = high.getProperty("id");
+				high_id = high.get("id");
 				this.result_clear_highlight();
 				high.addClass("result-selected");
 
@@ -653,19 +607,15 @@
 		};
 
 		Chosen.prototype.winnow_results = function(){
-			var found, option, part, parts, regex, result_id, results, searchText, startTime, startpos, text, zregex, _i, _j, _len, _len2, _ref;
+			var found, option, parts, regex, result_id, results, searchText, startpos, text, zregex;
 
-			startTime = new Date();
 			this.no_results_clear();
 			results = 0;
 			searchText = this.search_field.get('value') === this.default_text ? "" : this.search_field.get('value').trim();
 			regex = new RegExp('^' + searchText.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&"), 'i');
 			zregex = new RegExp(searchText.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&"), 'i');
-			_ref = this.results_data;
-
-			for(_i = 0, _len = _ref.length; _i < _len; _i++){
-
-				option = _ref[_i];
+			
+			this.results_data.each(function(option){
 
 				if(!option.disabled && !option.empty){
 
@@ -682,17 +632,12 @@
 							parts = option.text.replace(/\[|\]/g, "").split(" ");
 
 							if(parts.length){
-
-								for(_j = 0, _len2 = parts.length; _j < _len2; _j++){
-									part = parts[_j];
-
+								parts.each(function(part){
 									if(regex.test(part)){
 										found = true;
 										results += 1;
 									}
-
-								}
-
+								});
 							}
 
 						}
@@ -723,7 +668,7 @@
 
 						}else{
 
-							if(this.result_highlight && result_id === this.result_highlight.getProperty('id')){
+							if(this.result_highlight && result_id === this.result_highlight.get('id')){
 
 								this.result_clear_highlight();
 
@@ -737,7 +682,8 @@
 
 				}
 
-			}
+			}, this);
+			
 
 			if(results < 1 && searchText.length){
 				return this.no_results(searchText);
@@ -748,22 +694,14 @@
 		};
 
 		Chosen.prototype.winnow_results_clear = function(){
-			var li, lis, _i, _len, _results;
 
 			this.search_field.set('value', '');
-			lis = this.search_results.getElements("li");
-			_results = [];
-
-			for(_i = 0, _len = lis.length; _i < _len; _i++){
-
-				li = lis[_i];
-				li = $(li);
+			var _results = [];
+			this.search_results.getElements("li").each(function(li){
 				_results.push(li.hasClass("group-result") ? li.setStyle('display', 'block') : !this.is_multiple || !li.hasClass("result-selected") ? this.result_activate(li) : void 0);
-
-			}
+			}, this);
 
 			return _results;
-
 		};
 
 		Chosen.prototype.winnow_results_set_highlight = function(){
@@ -802,7 +740,7 @@
 				first_active = this.search_results.getElement("li.active-result");
 
 				if(first_active){
-					this.result_do_highlight($(first_active));
+					this.result_do_highlight(first_active);
 				}
 
 			}else if(this.results_showing){
@@ -867,13 +805,10 @@
 		};
 
 		Chosen.prototype.keyup_checker = function(evt){
-			var stroke, _ref;
-
-			stroke = (_ref = evt.code) != null ? _ref : evt.keyCode;
 			this.search_field_scale();
 
-			switch (stroke){
-				case 8:
+			switch (evt.key){
+				case 'backspace':
 
 					if(this.is_multiple && this.backstroke_length < 1 && this.choices > 0){
 						return this.keydown_backstroke();
@@ -883,22 +818,22 @@
 					}
 					break;
 
-				case 13:
+				case 'enter':
 
 					evt.preventDefault();
 					if(this.results_showing){
 						return this.result_select();
 					}
 					break;
-				case 27:
+				case 'esc':
 					if (this.results_showing) {
 						return this.results_hide();
 					}
 					break;
-				case 9:
-				case 38:
-				case 40:
-				case 16:
+				case 'tab':
+				case 'up':
+				case 'down':
+				case 'shift':
 					break;
 
 				default:
@@ -909,34 +844,31 @@
 		};
 
 		Chosen.prototype.keydown_checker = function(evt){
-			var stroke, _ref;
-
-			stroke = (_ref = evt.code) != null ? _ref : evt.keyCode;
 			this.search_field_scale();
 
-			if(stroke !== 8 && this.pending_backstroke){
+			if(evt.key !== 'backspace' && this.pending_backstroke){
 				this.clear_backstroke();
 			}
 
-			switch(stroke){
-				case 8:
+			switch(evt.key){
+				case 'backspace':
 					this.backstroke_length = this.search_field.value.length;
 					break;
 
-				case 9:
+				case 'tab':
 					this.mouse_on_container = false;
 					break;
 
-				case 13:
+				case 'enter':
 					evt.preventDefault();
 					break;
 
-				case 38:
+				case 'up':
 					evt.preventDefault();
 					this.keyup_arrow();
 					break;
 
-				case 40:
+				case 'down':
 					this.keydown_arrow();
 					break;
 			}
@@ -1009,7 +941,7 @@
 		};
 
 		SelectParser.prototype.add_group = function(group){
-			var group_position, option, _i, _len, _ref, _results;
+			var group_position, option, _results;
 
 			group_position = this.parsed.length;
 			this.parsed.push({
@@ -1020,12 +952,10 @@
 				disabled: group.disabled
 			});
 
-			_ref = group.childNodes;
 			_results = [];
-			for (_i = 0, _len = _ref.length; _i < _len; _i++){
-				option = _ref[_i];
+			group.getChildren().each(function(option){
 				_results.push(this.add_option(option, group_position, group.disabled));
-			}
+			}, this);
 
 			return _results;
 
@@ -1071,16 +1001,12 @@
 	})();
 
 	SelectParser.select_to_array = function(select){
-		var child, parser, _i, _len, _ref;
+		var parser = new SelectParser()
 
-		parser = new SelectParser();
-		_ref = select.childNodes;
-
-		for(_i = 0, _len = _ref.length; _i < _len; _i++){
-			child = _ref[_i];
+		select.getChildren().each(function(child){
 			parser.add_node(child);
-		}
-
+		});
+	
 		return parser.parsed;
 	};
 
