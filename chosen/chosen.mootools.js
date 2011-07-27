@@ -286,7 +286,7 @@
 						this.selected_item.getElements("span").set('text', data.text);
 					}
 				}
-			});
+			}, this);
 
 			this.show_search_field_default();
 			this.search_field_scale();
@@ -682,7 +682,7 @@
 
 				}
 
-			});
+			}, this);
 			
 
 			if(results < 1 && searchText.length){
@@ -699,7 +699,7 @@
 			var _results = [];
 			this.search_results.getElements("li").each(function(li){
 				_results.push(li.hasClass("group-result") ? li.setStyle('display', 'block') : !this.is_multiple || !li.hasClass("result-selected") ? this.result_activate(li) : void 0);
-			});
+			}, this);
 
 			return _results;
 		};
@@ -955,7 +955,7 @@
 			_results = [];
 			group.getChildren().each(function(option){
 				_results.push(this.add_option(option, group_position, group.disabled));
-			});
+			}, this);
 
 			return _results;
 
