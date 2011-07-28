@@ -62,7 +62,7 @@ var Chosen = new Class({
 		}
 
 		this.form_field.setStyle('display', 'none').grab(container_div, 'after');
-		this.container = $(this.container_id);
+		this.container = document.id(this.container_id);
 
 		this.container.addClass("chzn-container-" + (this.is_multiple ? "multi" : "single"));
 		this.dropdown = this.container.getElement('div.chzn-drop');
@@ -485,7 +485,7 @@ var Chosen = new Class({
 
 		this.search_container.grab(el, 'before');
 
-		$(choice_id).getElement("a")
+		document.id(choice_id).getElement("a")
 		.addEvent('click', this.choice_destroy_link_click.bind(this));
 
 	},
@@ -566,7 +566,7 @@ var Chosen = new Class({
 		result_data = this.results_data[pos];
 		result_data.selected = false;
 		this.form_field.options[result_data.options_index].selected = false;
-		result = $(this.form_field.id + "chzn_o_" + pos);
+		result = document.id(this.form_field.id + "chzn_o_" + pos);
 		result.removeClass("result-selected").addClass("active-result").setStyle('display', 'block');
 		this.result_clear_highlight();
 		this.winnow_results();
@@ -600,7 +600,7 @@ var Chosen = new Class({
 			if (!option.disabled && !option.empty){
 
 				if (option.group){
-					$(option.dom_id).setStyle('display', 'none');
+					document.id(option.dom_id).setStyle('display', 'none');
 				}else if (!(this.is_multiple && option.selected)){
 					found = false;
 					result_id = option.dom_id
@@ -636,14 +636,14 @@ var Chosen = new Class({
 
 						}
 
-						if ($(result_id).get('html') !== text){
-							$(result_id).set('html', text);
+						if (document.id(result_id).get('html') !== text){
+							document.id(result_id).set('html', text);
 						}
 
-						this.result_activate($(result_id));
+						this.result_activate(document.id(result_id));
 
 						if (option.group_array_index != null){
-							$(this.results_data[option.group_array_index].dom_id).setStyle('display', 'block');
+							document.id(this.results_data[option.group_array_index].dom_id).setStyle('display', 'block');
 						}
 
 					} else {
@@ -654,7 +654,7 @@ var Chosen = new Class({
 
 						}
 
-						this.result_deactivate($(result_id));
+						this.result_deactivate(document.id(result_id));
 
 					}
 
