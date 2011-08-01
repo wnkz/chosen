@@ -308,7 +308,7 @@ var Chosen = new Class({
 				classes.push("group-option");
 			}
 
-			return '<li id="' + option.dom_id + '" class="' + classes.join(' ') + '"><div>'+ option.text + '</div></li>';
+			return '<li id="' + option.dom_id + '" class="' + classes.join(' ') + '"><div>'+ option.html + '</div></li>';
 
 		} else {
 
@@ -481,7 +481,7 @@ var Chosen = new Class({
 
 		var el = new Element('li', {'id': choice_id})
 					.addClass('search-choice')
-					.set('html', '<span>' + item.text + '</span><a href="#" class="search-choice-close" rel="' + item.array_index + '"></a>');
+					.set('html', '<span>' + item.html + '</span><a href="#" class="search-choice-close" rel="' + item.array_index + '"></a>');
 
 		this.search_container.grab(el, 'before');
 
@@ -591,7 +591,7 @@ var Chosen = new Class({
 
 		this.no_results_clear();
 		results = 0;
-		searchText = this.search_field.get('value') === this.default_text ? "" : this.search_field.get('value').trim();
+		searchText = this.search_field.get('value') === this.default_text ? "" : new Element('div', {text: this.search_field.get('value').trim()}).get('html');
 		regex = new RegExp('^' + searchText.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&"), 'i');
 		zregex = new RegExp(searchText.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&"), 'i');
 
@@ -605,11 +605,11 @@ var Chosen = new Class({
 					found = false;
 					result_id = option.dom_id
 
-					if (regex.test(option.text)){
+					if (regex.test(option.html)){
 						found = true;
 						results += 1;
-					}else if (option.text.indexOf(" ") >= 0 || option.text.indexOf("[") === 0){
-						parts = option.text.replace(/\[|\]/g, "").split(" ");
+					}else if (option.html.indexOf(" ") >= 0 || option.html.indexOf("[") === 0){
+						parts = option.html.replace(/\[|\]/g, "").split(" ");
 
 						if (parts.length){
 							parts.each(function(part){
@@ -626,13 +626,13 @@ var Chosen = new Class({
 
 						if (searchText.length){
 
-							startpos = option.text.search(zregex);
-							text = option.text.substr(0, startpos + searchText.length) + '</em>' + option.text.substr(startpos + searchText.length);
+							startpos = option.html.search(zregex);
+							text = option.html.substr(0, startpos + searchText.length) + '</em>' + option.html.substr(startpos + searchText.length);
 							text = text.substr(0, startpos) + '<em>' + text.substr(startpos);
 
 						} else {
 
-							text = option.text;
+							text = option.html;
 
 						}
 
@@ -699,7 +699,7 @@ var Chosen = new Class({
 	no_results: function(terms){
 
 		var no_results_html = new Element('li', {'class': 'no-results'}).set('html', 'No results match "<span></span>"');
-		no_results_html.getElement("span").set('text', terms);
+		no_results_html.getElement("span").set('html', terms);
 		this.search_results.grab(no_results_html);
 
 	},
@@ -949,6 +949,7 @@ var SelectParser = new Class({
 					options_index: this.options_index,
 					value: option.value,
 					text: option.text,
+					html: option.innerHTML,
 					selected: option.selected,
 					disabled: group_disabled === true ? group_disabled : option.disabled,
 					group_array_index: group_position
