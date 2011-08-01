@@ -42,6 +42,7 @@ var Chosen = new Class({
 
 		var container_div, dd_top, dd_width, sf_width;
 
+		if (!this.form_field.id) this.form_field.id = String.uniqueID();
 		this.container_id = this.form_field.id + "_chzn";
 		this.f_width = this.form_field.getCoordinates().width;
 
@@ -235,7 +236,7 @@ var Chosen = new Class({
 
 	test_active_click: function(evt){
 
-		if (evt.target.getParents('#' + this.container.id).length){
+		if (evt.target.getParents('#' + this.container_id).length){
 			this.active_field = true;
 		} else {
 			this.close_field();
@@ -285,7 +286,7 @@ var Chosen = new Class({
 
 		if (!group.disabled){
 
-			group.dom_id = this.form_field.id + "chzn_g_" + group.array_index;
+			group.dom_id =  this.container_id + "_g_" + group.array_index;
 			return '<li id="' + group.dom_id + '" class="group-result"><div>'+ group.label + '</div></li>';
 
 		} else {
@@ -298,7 +299,7 @@ var Chosen = new Class({
 
 		var classes;
 		if (!option.disabled){
-			option.dom_id = this.form_field.id + "chzn_o_" + option.array_index;
+			option.dom_id =  this.container_id + "_o_" + option.array_index;
 			classes = option.selected && this.is_multiple ? [] : ["active-result"];
 
 			if (option.selected){
@@ -477,7 +478,7 @@ var Chosen = new Class({
 
 	choice_build: function(item){
 
-		var choice_id = this.form_field.id + "_chzn_c_" + item.array_index;
+		var choice_id = this.container_id + "_c_" + item.array_index;
 		this.choices += 1;
 
 		var el = new Element('li', {'id': choice_id})
@@ -567,7 +568,7 @@ var Chosen = new Class({
 		result_data = this.results_data[pos];
 		result_data.selected = false;
 		this.form_field.options[result_data.options_index].selected = false;
-		result = document.id(this.form_field.id + "chzn_o_" + pos);
+		result = document.id( this.container_id + "_o_" + pos);
 		result.removeClass("result-selected").addClass("active-result").setStyle('display', 'block');
 		this.result_clear_highlight();
 		this.winnow_results();
