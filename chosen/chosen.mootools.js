@@ -44,7 +44,7 @@ var Chosen = new Class({
 		this.container_id = this.form_field.id + "_chzn";
 		this.f_width = this.form_field.getCoordinates().width;
 
-		this.default_text = this.form_field.get('title') ? this.form_field.get('title') : this.default_text_default;
+		this.default_text = this.form_field.get('data-placeholder') ? this.form_field.get('data-placeholder') : this.default_text_default;
 
 		container_div = new Element('div', {
 			'id': 		this.container_id,
