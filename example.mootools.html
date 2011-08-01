@@ -1235,11 +1235,32 @@
       </div>
     </div>
 
-    <h2>Setup</h2>
+    <h2>Change / Update Events</h2>
+    <div class="side-by-side clearfix">
+      <ul>
+        <li>
+          <h3>Form Field Change</h3>
+          <p>When working with form fields, you often want to perform some behavior after a value has been selected or deselected. Whenever a user selects a field in Chosen, it triggers a "change" event* on the original form field. That let's you do something like this:</p>
+          <p><code>$("form_field").addEvent('change', &hellip; );</code></p>
+          <p><strong>Note:</strong> Prototype doesn't offer support for triggering standard browser events. <a href="https://github.com/kangax/protolicious/blob/5b56fdafcd7d7662c9d648534225039b2e78e371/event.simulate.js">Event.simulate</a> is required to trigger the change event when using the Prototype version.</p>
+        </li>
+        <li>
+          <h3>Updating Chosen Dynamically</h3>
+          <p>If you need to update the options in your select field and want Chosen to pick up the changes, you'll need to trigger the "liszt:updated" event on the field. Chosen will re-build itself based on the updated content.</p>
+          <ul>
+          	<li><strong>MooTools Version:</strong> <code>$("form_field").fireEvent("liszt:updated");</code></li>
+            <li><strong>jQuery Version:</strong> <code>$("#form_field").trigger("liszt:updated");</code></li>
+            <li><strong>Prototype Version:</strong> <code>Event.fire($("form_field"), "liszt:updated");</code></li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+
+    <h2>Setup (for MooTools)</h2>
     <p>Using Chosen is easy as can be.</p>
     <ol>
       <li>Download the plug-in and copy the chosen files to your app.</li>
-      <li>Add the class <em>chzn-select</em> to any select box.</li>
+      <li>Activate the plugin on the select boxes of your choice:<br /> Single Select: <code>new Chosen($('chzn-select-id'));</code><br /> Shortcut for multiple selects at once: <code>$$(".chzn-select").chosen();</code></li>
       <li><a href="http://youtu.be/pS-RsIzb78U?t=57s">Disco</a>.</li>
     </ol>
 
