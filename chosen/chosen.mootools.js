@@ -43,7 +43,7 @@ var Chosen = new Class({
 		var container_div, dd_top, dd_width, sf_width;
 
 		if (!this.form_field.id) this.form_field.id = String.uniqueID();
-		this.container_id = this.form_field.id + "_chzn";
+		this.container_id = this.form_field.id.replace('.', '_') + "_chzn";
 		this.f_width = this.form_field.getCoordinates().width;
 
 		this.default_text = this.form_field.get('data-placeholder') ? this.form_field.get('data-placeholder') : this.default_text_default;
