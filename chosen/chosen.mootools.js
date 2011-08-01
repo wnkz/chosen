@@ -31,6 +31,7 @@ var Chosen = new Class({
 		this.click_test_action = this.test_active_click.bind(this);
 		this.form_field = elmn;
 		this.is_multiple = this.form_field.multiple;
+		this.is_rtl = this.form_field.hasClass("chzn-rtl");
 		this.default_text_default = this.form_field.multiple ? "Select Some Options" : "Select an Option";
 		this.set_up_html();
 		this.register_observers();
@@ -48,7 +49,7 @@ var Chosen = new Class({
 
 		container_div = new Element('div', {
 			'id': 		this.container_id,
-			'class': 	'chzn-container'
+			'class': 	'chzn-container'+ (this.is_rtl ? ' chzn-rtl' : '')
 		}).setStyle('width', this.f_width);
 
 		if (this.is_multiple){
