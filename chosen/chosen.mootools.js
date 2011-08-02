@@ -31,6 +31,7 @@ var Chosen = new Class({
 		this.click_test_action = this.test_active_click.bind(this);
 		this.form_field = elmn;
 		this.is_multiple = this.form_field.multiple;
+		this.is_rtl = this.form_field.hasClass("chzn-rtl");
 		this.default_text_default = this.form_field.multiple ? "Select Some Options" : "Select an Option";
 		this.set_up_html();
 		this.register_observers();
@@ -41,14 +42,15 @@ var Chosen = new Class({
 
 		var container_div, dd_top, dd_width, sf_width;
 
-		this.container_id = this.form_field.id + "_chzn";
+		if (!this.form_field.id) this.form_field.id = String.uniqueID();
+		this.container_id = this.form_field.id.replace(/(:|\.)/g, '_') + "_chzn";
 		this.f_width = this.form_field.getCoordinates().width;
 
-		this.default_text = this.form_field.get('title') ? this.form_field.get('title') : this.default_text_default;
+		this.default_text = this.form_field.get('data-placeholder') ? this.form_field.get('data-placeholder') : this.default_text_default;
 
 		container_div = new Element('div', {
 			'id': 		this.container_id,
-			'class': 	'chzn-container'
+			'class': 	'chzn-container'+ (this.is_rtl ? ' chzn-rtl' : '')
 		}).setStyle('width', this.f_width);
 
 		if (this.is_multiple){
@@ -234,7 +236,7 @@ var Chosen = new Class({
 
 	test_active_click: function(evt){
 
-		if (evt.target.getParents('#' + this.container.id).length){
+		if (evt.target.getParents('#' + this.container_id).length){
 			this.active_field = true;
 		} else {
 			this.close_field();
@@ -284,7 +286,7 @@ var Chosen = new Class({
 
 		if (!group.disabled){
 
-			group.dom_id = this.form_field.id + "chzn_g_" + group.array_index;
+			group.dom_id =  this.container_id + "_g_" + group.array_index;
 			return '<li id="' + group.dom_id + '" class="group-result"><div>'+ group.label + '</div></li>';
 
 		} else {
@@ -297,7 +299,7 @@ var Chosen = new Class({
 
 		var classes;
 		if (!option.disabled){
-			option.dom_id = this.form_field.id + "chzn_o_" + option.array_index;
+			option.dom_id =  this.container_id + "_o_" + option.array_index;
 			classes = option.selected && this.is_multiple ? [] : ["active-result"];
 
 			if (option.selected){
@@ -308,7 +310,7 @@ var Chosen = new Class({
 				classes.push("group-option");
 			}
 
-			return '<li id="' + option.dom_id + '" class="' + classes.join(' ') + '"><div>'+ option.text + '</div></li>';
+			return '<li id="' + option.dom_id + '" class="' + classes.join(' ') + '"><div>'+ option.html + '</div></li>';
 
 		} else {
 
@@ -476,12 +478,12 @@ var Chosen = new Class({
 
 	choice_build: function(item){
 
-		var choice_id = this.form_field.id + "_chzn_c_" + item.array_index;
+		var choice_id = this.container_id + "_c_" + item.array_index;
 		this.choices += 1;
 
 		var el = new Element('li', {'id': choice_id})
 					.addClass('search-choice')
-					.set('html', '<span>' + item.text + '</span><a href="#" class="search-choice-close" rel="' + item.array_index + '"></a>');
+					.set('html', '<span>' + item.html + '</span><a href="#" class="search-choice-close" rel="' + item.array_index + '"></a>');
 
 		this.search_container.grab(el, 'before');
 
@@ -566,7 +568,7 @@ var Chosen = new Class({
 		result_data = this.results_data[pos];
 		result_data.selected = false;
 		this.form_field.options[result_data.options_index].selected = false;
-		result = document.id(this.form_field.id + "chzn_o_" + pos);
+		result = document.id( this.container_id + "_o_" + pos);
 		result.removeClass("result-selected").addClass("active-result").setStyle('display', 'block');
 		this.result_clear_highlight();
 		this.winnow_results();
@@ -591,7 +593,7 @@ var Chosen = new Class({
 
 		this.no_results_clear();
 		results = 0;
-		searchText = this.search_field.get('value') === this.default_text ? "" : this.search_field.get('value').trim();
+		searchText = this.search_field.get('value') === this.default_text ? "" : new Element('div', {text: this.search_field.get('value').trim()}).get('html');
 		regex = new RegExp('^' + searchText.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&"), 'i');
 		zregex = new RegExp(searchText.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&"), 'i');
 
@@ -605,11 +607,11 @@ var Chosen = new Class({
 					found = false;
 					result_id = option.dom_id
 
-					if (regex.test(option.text)){
+					if (regex.test(option.html)){
 						found = true;
 						results += 1;
-					}else if (option.text.indexOf(" ") >= 0 || option.text.indexOf("[") === 0){
-						parts = option.text.replace(/\[|\]/g, "").split(" ");
+					}else if (option.html.indexOf(" ") >= 0 || option.html.indexOf("[") === 0){
+						parts = option.html.replace(/\[|\]/g, "").split(" ");
 
 						if (parts.length){
 							parts.each(function(part){
@@ -626,13 +628,13 @@ var Chosen = new Class({
 
 						if (searchText.length){
 
-							startpos = option.text.search(zregex);
-							text = option.text.substr(0, startpos + searchText.length) + '</em>' + option.text.substr(startpos + searchText.length);
+							startpos = option.html.search(zregex);
+							text = option.html.substr(0, startpos + searchText.length) + '</em>' + option.html.substr(startpos + searchText.length);
 							text = text.substr(0, startpos) + '<em>' + text.substr(startpos);
 
 						} else {
 
-							text = option.text;
+							text = option.html;
 
 						}
 
@@ -699,7 +701,7 @@ var Chosen = new Class({
 	no_results: function(terms){
 
 		var no_results_html = new Element('li', {'class': 'no-results'}).set('html', 'No results match "<span></span>"');
-		no_results_html.getElement("span").set('text', terms);
+		no_results_html.getElement("span").set('html', terms);
 		this.search_results.grab(no_results_html);
 
 	},
@@ -949,6 +951,7 @@ var SelectParser = new Class({
 					options_index: this.options_index,
 					value: option.value,
 					text: option.text,
+					html: option.innerHTML,
 					selected: option.selected,
 					disabled: group_disabled === true ? group_disabled : option.disabled,
 					group_array_index: group_position

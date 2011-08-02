@@ -1,13 +1,8 @@
 ###
-Chosen, a Select Box Enhancer for jQuery and Protoype
-by Patrick Filler for Harvest, http://getharvest.com
-
-Available for use under the MIT License, http://en.wikipedia.org/wiki/MIT_License
-
+Chosen source: generate output using 'cake build'
 Copyright (c) 2011 by Harvest
 ###
-
-root = exports ? this
+root = this
 $ = jQuery
 
 $.fn.extend({
@@ -15,7 +10,7 @@ $.fn.extend({
     $(this).each((input_field) ->
       new Chosen(this, data, options) unless ($ this).hasClass "chzn-done"
     )
-})
+}) 
 
 class Chosen
 
@@ -25,6 +20,7 @@ class Chosen
     @form_field = elmn
     @form_field_jq = $ @form_field
     @is_multiple = @form_field.multiple
+    @is_rtl = @form_field_jq.hasClass "chzn-rtl"
 
     @default_text_default = if @form_field.multiple then "Select Some Options" else "Select an Option"
 
@@ -43,15 +39,16 @@ class Chosen
     @choices = 0
 
   set_up_html: ->
-    @container_id = @form_field.id + "_chzn"
+    @container_id = if @form_field.id.length then @form_field.id.replace(/(:|\.)/g, '_') else this.generate_field_id()
+    @container_id += "_chzn"
     
     @f_width = @form_field_jq.width()
     
-    @default_text = if @form_field_jq.attr 'title' then @form_field_jq.attr 'title' else @default_text_default
+    @default_text = if @form_field_jq.data 'placeholder' then @form_field_jq.data 'placeholder' else @default_text_default
     
     container_div = ($ "<div />", {
       id: @container_id
-      class: 'chzn-container'
+      class: "chzn-container #{' chzn-rtl' if @is_rtl}"
       style: 'width: ' + (@f_width) + 'px;' #use parens around @f_width so coffeescript doesn't think + ' px' is a function parameter
     })
     
@@ -170,7 +167,7 @@ class Chosen
 
 
   test_active_click: (evt) ->
-    if $(evt.target).parents('#' + @container.id).length
+    if $(evt.target).parents('#' + @container_id).length
       @active_field = true
     else
       this.close_field()
@@ -178,7 +175,7 @@ class Chosen
   results_build: ->
     startTime = new Date()
     @parsing = true
-    @results_data = SelectParser.select_to_array @form_field
+    @results_data = root.SelectParser.select_to_array @form_field
 
     if @is_multiple and @choices > 0
       @search_choices.find("li.search-choice").remove()
@@ -206,20 +203,20 @@ class Chosen
 
   result_add_group: (group) ->
     if not group.disabled
-      group.dom_id = @form_field.id + "chzn_g_" + group.array_index
+      group.dom_id = @container_id + "_g_" + group.array_index
       '<li id="' + group.dom_id + '" class="group-result">' + $("<div />").text(group.label).html() + '</li>'
     else
       ""
   
   result_add_option: (option) ->
     if not option.disabled
-      option.dom_id = @form_field.id + "chzn_o_" + option.array_index
+      option.dom_id = @container_id + "_o_" + option.array_index
       
       classes = if option.selected and @is_multiple then [] else ["active-result"]
       classes.push "result-selected" if option.selected
       classes.push "group-option" if option.group_array_index?
       
-      '<li id="' + option.dom_id + '" class="' + classes.join(' ') + '">' + $("<div />").text(option.text).html() + '</li>'
+      '<li id="' + option.dom_id + '" class="' + classes.join(' ') + '">' + option.html + '</li>'
     else
       ""
 
@@ -318,9 +315,9 @@ class Chosen
       this.results_show()
 
   choice_build: (item) ->
-    choice_id = @form_field.id + "_chzn_c_" + item.array_index
+    choice_id = @container_id + "_c_" + item.array_index
     @choices += 1
-    @search_container.before  '<li class="search-choice" id="' + choice_id + '"><span>' + item.text + '</span><a href="javascript:void(0)" class="search-choice-close" rel="' + item.array_index + '"></a></li>'
+    @search_container.before  '<li class="search-choice" id="' + choice_id + '"><span>' + item.html + '</span><a href="javascript:void(0)" class="search-choice-close" rel="' + item.array_index + '"></a></li>'
     link = $('#' + choice_id).find("a").first()
     link.click (evt) => this.choice_destroy_link_click(evt)
 
@@ -380,7 +377,7 @@ class Chosen
     result_data.selected = false
 
     @form_field.options[result_data.options_index].selected = false
-    result = $("#" + @form_field.id + "chzn_o_" + pos)
+    result = $("#" + @container_id + "_o_" + pos)
     result.removeClass("result-selected").addClass("active-result").show()
 
     this.result_clear_highlight()
@@ -401,7 +398,7 @@ class Chosen
     
     results = 0
 
-    searchText = if @search_field.val() is @default_text then "" else $.trim @search_field.val()
+    searchText = if @search_field.val() is @default_text then "" else $('<div/>').text($.trim(@search_field.val())).html()
     regex = new RegExp('^' + searchText.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&"), 'i')
     zregex = new RegExp(searchText.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&"), 'i')
 
@@ -413,12 +410,12 @@ class Chosen
           found = false
           result_id = option.dom_id
           
-          if regex.test option.text
+          if regex.test option.html
             found = true
             results += 1
-          else if option.text.indexOf(" ") >= 0 or option.text.indexOf("[") == 0
+          else if option.html.indexOf(" ") >= 0 or option.html.indexOf("[") == 0
             #TODO: replace this substitution of /\[\]/ with a list of characters to skip.
-            parts = option.text.replace(/\[|\]/g, "").split(" ")
+            parts = option.html.replace(/\[|\]/g, "").split(" ")
             if parts.length
               for part in parts
                 if regex.test part
@@ -427,11 +424,11 @@ class Chosen
 
           if found
             if searchText.length
-              startpos = option.text.search zregex
-              text = option.text.substr(0, startpos + searchText.length) + '</em>' + option.text.substr(startpos + searchText.length)
+              startpos = option.html.search zregex
+              text = option.html.substr(0, startpos + searchText.length) + '</em>' + option.html.substr(startpos + searchText.length)
               text = text.substr(0, startpos) + '<em>' + text.substr(startpos)
             else
-              text = option.text
+              text = option.html
 
             $("#" + result_id).html text if $("#" + result_id).html != text
 
@@ -466,7 +463,7 @@ class Chosen
   
   no_results: (terms) ->
     no_results_html = $('<li class="no-results">No results match "<span></span>"</li>')
-    no_results_html.find("span").first().text(terms)
+    no_results_html.find("span").first().html(terms)
 
     @search_results.append no_results_html
   
@@ -577,57 +574,24 @@ class Chosen
 
       dd_top = @container.height()
       @dropdown.css({"top":  dd_top + "px"})
+  
+  generate_field_id: ->
+    new_id = this.generate_random_id()
+    @form_field.id = new_id
+    new_id
+  
+  generate_random_id: ->
+    string = "sel" + this.generate_random_char() + this.generate_random_char() + this.generate_random_char()
+    while $("#" + string).length > 0
+      string += this.generate_random_char()
+    string
+    
+  generate_random_char: ->
+    chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZ";
+    rand = Math.floor(Math.random() * chars.length)
+    newchar = chars.substring rand, rand+1
 
 get_side_border_padding = (elmt) ->
   side_border_padding = elmt.outerWidth() - elmt.width()
 
 root.get_side_border_padding = get_side_border_padding
-
-class SelectParser
-  
-  constructor: ->
-    @options_index = 0
-    @parsed = []
-
-  add_node: (child) ->
-    if child.nodeName is "OPTGROUP"
-      this.add_group child
-    else
-      this.add_option child
-
-  add_group: (group) ->
-    group_position = @parsed.length
-    @parsed.push
-      array_index: group_position
-      group: true
-      label: group.label
-      children: 0
-      disabled: group.disabled
-    this.add_option( option, group_position, group.disabled ) for option in group.childNodes
-
-  add_option: (option, group_position, group_disabled) ->
-    if option.nodeName is "OPTION"
-      if option.text != ""
-        if group_position?
-          @parsed[group_position].children += 1
-        @parsed.push
-          array_index: @parsed.length
-          options_index: @options_index
-          value: option.value
-          text: option.text
-          selected: option.selected
-          disabled: if group_disabled is true then group_disabled else option.disabled
-          group_array_index: group_position
-      else
-        @parsed.push
-          array_index: @parsed.length
-          options_index: @options_index
-          empty: true
-      @options_index += 1
-
-SelectParser.select_to_array = (select) ->
-  parser = new SelectParser()
-  parser.add_node( child ) for child in select.childNodes
-  parser.parsed
-  
-root.SelectParser = SelectParser

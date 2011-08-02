@@ -58,7 +58,8 @@
     <div class="side-by-side clearfix">
       <div>
         <em>Turns This</em>
-        <select title="Choose a Country..." style="width:350px;" tabindex="1">
+        <select data-placeholder="Choose a Country..." style="width:350px;" tabindex="1">
+          <option value=""></option>
           <option value="United States">United States</option>
           <option value="United Kingdom">United Kingdom</option>
           <option value="Afghanistan">Afghanistan</option>
@@ -305,7 +306,7 @@
       </div>
       <div>
         <em>Into This</em>
-        <select title="Choose a Country..." class="chzn-select" style="width:350px;" tabindex="2" id="single_example">
+        <select data-placeholder="Choose a Country..." class="chzn-select" style="width:350px;" tabindex="2" id="single_example">
           <option value=""></option>
           <option value="United States">United States</option>
           <option value="United Kingdom">United Kingdom</option>
@@ -557,7 +558,7 @@
     <div class="side-by-side clearfix">
       <div>
         <em>Turns This</em>
-        <select title="Choose a Country..." style="width:350px;" multiple tabindex="3">
+        <select data-placeholder="Choose a Country..." style="width:350px;" multiple tabindex="3">
           <option value="United States">United States</option>
           <option value="United Kingdom">United Kingdom</option>
           <option value="Afghanistan">Afghanistan</option>
@@ -804,7 +805,7 @@
       </div>
       <div>
         <em>Into This</em>
-        <select title="Choose a Country..." class="chzn-select" multiple style="width:350px;" tabindex="4" id="multi_example">
+        <select data-placeholder="Choose a Country..." class="chzn-select" multiple style="width:350px;" tabindex="4" id="multi_example">
           <option value=""></option>
           <option value="United States">United States</option>
           <option value="United Kingdom">United Kingdom</option>
@@ -1056,7 +1057,7 @@
     <div class="side-by-side clearfix">
       <div>
         <em>Single Select with Groups</em>
-        <select id="nfl_team_single" title="Your Favorite Football Team" style="width:350px;" class="chzn-select" tabindex="5">
+        <select id="nfl_team_single" data-placeholder="Your Favorite Football Team" style="width:350px;" class="chzn-select" tabindex="5">
           <option value=""></option>
           <optgroup label="NFC East">
             <option>Dallas Cowboys</option>
@@ -1110,7 +1111,7 @@
       </div>
       <div>
         <em>Multiple Select with Groups</em>
-        <select id="nfl_team_multi" title="Your Favorite Football Team" style="width:350px;" class="chzn-select" multiple tabindex="6">
+        <select id="nfl_team_multi" data-placeholder="Your Favorite Football Team" style="width:350px;" class="chzn-select" multiple tabindex="6">
           <option value=""></option>
           <optgroup label="NFC East">
             <option>Dallas Cowboys</option>
@@ -1169,7 +1170,7 @@
       <p>Chosen automatically highlights selected options and removes disabled options.</p>
       <div>
         <em>Single Select</em>
-        <select id="bears_single" title="Your Favorite Type of Bear" style="width:350px;" class="chzn-select" tabindex="7">
+        <select id="bears_single" data-placeholder="Your Favorite Type of Bear" style="width:350px;" class="chzn-select" tabindex="7">
           <option value=""></option>
           <option>American Black Bear</option>
           <option>Asiatic Black Bear</option>
@@ -1183,7 +1184,7 @@
       </div>
       <div>
         <em>Multiple Select with Groups</em>
-        <select id="bears_multiple" title="Your Favorite Types of Bear" style="width:350px;" multiple class="chzn-select" tabindex="8">
+        <select id="bears_multiple" data-placeholder="Your Favorite Types of Bear" style="width:350px;" multiple class="chzn-select" tabindex="8">
           <option value=""></option>
           <option>American Black Bear</option>
           <option>Asiatic Black Bear</option>
@@ -1199,15 +1200,67 @@
 
     <h2>Default Text Support</h2>
     <div class="side-by-side clearfix">
-      <p>Chosen automatically sets the default field text ("Choose a country...") by reading the select element's title value. If no title value is present, it will default to "Select Some Option" or "Select Some Options" depending on whether the select is single or multiple. You can change these elements in the plug-in js file as you see fit.</p>
-      <code>&lt;select <strong>title="Choose a country..."</strong> style="width:350px;" multiple class="chzn-select"&gt;</code>
+      <p>Chosen automatically sets the default field text ("Choose a country...") by reading the select element's data-placeholder value. If no data-placeholder value is present, it will default to "Select Some Option" or "Select Some Options" depending on whether the select is single or multiple. You can change these elements in the plug-in js file as you see fit.</p>
+      <code>&lt;select <strong>data-placeholder="Choose a country..."</strong> style="width:350px;" multiple class="chzn-select"&gt;</code>
+      <p><strong>Note:</strong> on single selects, the first element is assumed to be selected by the browser. To take advantage of the default text support, you will need to include a blank option as the first element of your select list.</p>
     </div>
 
-    <h2>Setup</h2>
+    <h2>Right to Left Support</h2>
+    <div class="side-by-side clearfix">
+      <p>Chosen supports right to left select boxes too. just add <code>"chzn-rtl"</code> in addition to <code>"chzn-select"</code> to your select tags and you are good to go.</p>
+      <p><code>&lt;select class="chzn-select <strong>chzn-rtl</strong>"&gt;</code></p>
+      <div>
+        <em>Single right to left select</em>
+        <select data-placeholder="Your Favorite Type of Bear" style="width:350px;" class="chzn-select chzn-rtl" tabindex="9">
+          <option value=""></option>
+          <option>American Black Bear</option>
+          <option>Asiatic Black Bear</option>
+          <option>Brown Bear</option>
+          <option>Giant Panda</option>
+          <option selected>Sloth Bear</option>
+          <option>Polar Bear</option>
+        </select>
+      </div>
+      <div>
+        <em>Multiple right to left select</em>
+        <select data-placeholder="Your Favorite Types of Bear" style="width:350px;" multiple class="chzn-select chzn-rtl" tabindex="10">
+          <option value=""></option>
+          <option>American Black Bear</option>
+          <option>Asiatic Black Bear</option>
+          <option>Brown Bear</option>
+          <option>Giant Panda</option>
+          <option selected>Sloth Bear</option>
+          <option selected>Polar Bear</option>
+        </select>
+      </div>
+    </div>
+
+    <h2>Change / Update Events</h2>
+    <div class="side-by-side clearfix">
+      <ul>
+        <li>
+          <h3>Form Field Change</h3>
+          <p>When working with form fields, you often want to perform some behavior after a value has been selected or deselected. Whenever a user selects a field in Chosen, it triggers a "change" event* on the original form field. That let's you do something like this:</p>
+          <p><code>$("form_field").addEvent('change', &hellip; );</code></p>
+          <p><strong>Note:</strong> Prototype doesn't offer support for triggering standard browser events. <a href="https://github.com/kangax/protolicious/blob/5b56fdafcd7d7662c9d648534225039b2e78e371/event.simulate.js">Event.simulate</a> is required to trigger the change event when using the Prototype version.</p>
+        </li>
+        <li>
+          <h3>Updating Chosen Dynamically</h3>
+          <p>If you need to update the options in your select field and want Chosen to pick up the changes, you'll need to trigger the "liszt:updated" event on the field. Chosen will re-build itself based on the updated content.</p>
+          <ul>
+          	<li><strong>MooTools Version:</strong> <code>$("form_field").fireEvent("liszt:updated");</code></li>
+            <li><strong>jQuery Version:</strong> <code>$("#form_field").trigger("liszt:updated");</code></li>
+            <li><strong>Prototype Version:</strong> <code>Event.fire($("form_field"), "liszt:updated");</code></li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+
+    <h2>Setup (for MooTools)</h2>
     <p>Using Chosen is easy as can be.</p>
     <ol>
       <li>Download the plug-in and copy the chosen files to your app.</li>
-      <li>Add the class <em>chzn-select</em> to any select box.</li>
+      <li>Activate the plugin on the select boxes of your choice:<br /> Single Select: <code>new Chosen($('chzn-select-id'));</code><br /> Shortcut for multiple selects at once: <code>$$(".chzn-select").chosen();</code></li>
       <li><a href="http://youtu.be/pS-RsIzb78U?t=57s">Disco</a>.</li>
     </ol>
 
