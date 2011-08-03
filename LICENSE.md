@@ -1,5 +1,6 @@
-# Chosen, a Select Box Enhancer for jQuery and Protoype
+# Chosen, a Select Box Enhancer for jQuery, Protoype and MooTools
 ## by Patrick Filler for [Harvest](http://getharvest.com)
+## port to MooTools by Jules Janssen
 
 Available for use under the [MIT License](http://en.wikipedia.org/wiki/MIT_License)
 
