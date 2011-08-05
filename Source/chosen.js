@@ -1,12 +1,12 @@
-/**
- * Chosen, a Select Box Enhancer for jQuery and Protoype
- * by Patrick Filler for Harvest, http://getharvest.com
- * 
- * Available for use under the MIT License, http://en.wikipedia.org/wiki/MIT_License
- * 
- * Copyright (c) 2011 by Harvest
- */
-
+/*
+---
+name: Chosen
+description: Creates a Picker, which can be used for anything
+authors: Patrick Filler, Jules Janssen, Jonnathan Soares
+requires: [Core/*, More/Locale]
+provides: Chosen
+...
+*/
 Elements.implement({
 	chosen: function(data, options){
 		return this.each(function(el){
@@ -32,7 +32,6 @@ var Chosen = new Class({
 		this.form_field = elmn;
 		this.is_multiple = this.form_field.multiple;
 		this.is_rtl = this.form_field.hasClass("chzn-rtl");
-		this.default_text_default = this.form_field.multiple ? "Select Some Options" : "Select an Option";
 		this.set_up_html();
 		this.register_observers();
 
@@ -46,7 +45,7 @@ var Chosen = new Class({
 		this.container_id = this.form_field.id.replace(/(:|\.)/g, '_') + "_chzn";
 		this.f_width = this.form_field.getCoordinates().width;
 
-		this.default_text = this.form_field.get('data-placeholder') ? this.form_field.get('data-placeholder') : this.default_text_default;
+		this.default_text = this.form_field.get('data-placeholder') ? this.form_field.get('data-placeholder') : Locale.get('Chosen.placeholder', this.form_field.multiple);
 
 		container_div = new Element('div', {
 			'id': 		this.container_id,
@@ -700,7 +699,7 @@ var Chosen = new Class({
 
 	no_results: function(terms){
 
-		var no_results_html = new Element('li', {'class': 'no-results'}).set('html', 'No results match "<span></span>"');
+		var no_results_html = new Element('li', {'class': 'no-results'}).set('html', Locale.get('Chosen.noResults')+' "<span></span>"');
 		no_results_html.getElement("span").set('html', terms);
 		this.search_results.grab(no_results_html);
 
