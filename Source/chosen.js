@@ -154,12 +154,12 @@ var Chosen = new Class({
 				}
 
 				document.addEvent('click', this.click_test_action);
-				this.results_toggle();
+				this.results_show();
 
 			}else if (!this.is_multiple && evt && (evt.target === this.selected_item || evt.target.getParents('a.chzn-single').length)){
 
 				evt.preventDefault();
-				this.results_show();
+				this.results_toggle();
 
 			}
 
