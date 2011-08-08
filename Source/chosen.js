@@ -39,7 +39,7 @@ var Chosen = new Class({
 
 	set_up_html: function(){
 
-		var container_div, dd_top, dd_width, sf_width;
+		var dd_top, dd_width, sf_width;
 
 		if (!this.form_field.id) this.form_field.id = String.uniqueID();
 		this.container_id = this.form_field.id.replace(/(:|\.)/g, '_') + "_chzn";
@@ -47,25 +47,22 @@ var Chosen = new Class({
 
 		this.default_text = this.form_field.get('data-placeholder') ? this.form_field.get('data-placeholder') : Locale.get('Chosen.placeholder', this.form_field.multiple);
 
-		container_div = new Element('div', {
+		this.container = new Element('div', {
 			'id': 		this.container_id,
-			'class': 	'chzn-container'+ (this.is_rtl ? ' chzn-rtl' : '')
+			'class': 	'chzn-container'+ (this.is_rtl ? ' chzn-rtl' : '') + " chzn-container-" + (this.is_multiple ? "multi" : "single")
 		}).setStyle('width', this.f_width);
 
 		if (this.is_multiple){
 
-			container_div.set('html', '<ul class="chzn-choices"><li class="search-field"><input type="text" value="' + this.default_text + '" class="default" style="width:25px;" /></li></ul><div class="chzn-drop" style="left:-9000px;"><ul class="chzn-results"></ul></div>');
+			this.container.set('html', '<ul class="chzn-choices"><li class="search-field"><input type="text" value="' + this.default_text + '" class="default" style="width:25px;" /></li></ul><div class="chzn-drop" style="left:-9000px;"><ul class="chzn-results"></ul></div>');
 
 		} else {
 
-			container_div.set('html', '<a href="javascript:void(0)" class="chzn-single"><span>' + this.default_text + '</span><div><b></b></div></a><div class="chzn-drop" style="left:-9000px;"><div class="chzn-search"><input type="text" /></div><ul class="chzn-results"></ul></div>');
+			this.container.set('html', '<a href="javascript:void(0)" class="chzn-single"><span>' + this.default_text + '</span><div><b></b></div></a><div class="chzn-drop" style="left:-9000px;"><div class="chzn-search"><input type="text" /></div><ul class="chzn-results"></ul></div>');
 
 		}
 
-		this.form_field.setStyle('display', 'none').grab(container_div, 'after');
-		this.container = document.id(this.container_id);
-
-		this.container.addClass("chzn-container-" + (this.is_multiple ? "multi" : "single"));
+		this.form_field.setStyle('display', 'none').grab(this.container, 'after');
 		this.dropdown = this.container.getElement('div.chzn-drop');
 
 		dd_top = this.container.getCoordinates().height;
