@@ -442,7 +442,7 @@ var Chosen = new Class({
 
 		if (target){
 			this.result_highlight = target;
-			this.result_select();
+			this.result_select(evt);
 		}
 
 	},
@@ -509,7 +509,7 @@ var Chosen = new Class({
 
 	},
 
-	result_select: function(){
+	result_select: function(evt){
 		var high, high_id, item, position;
 
 		if (this.result_highlight){
@@ -536,7 +536,7 @@ var Chosen = new Class({
 				this.selected_item.getElement("span").set('text', item.text);
 			}
 
-			this.results_hide();
+			if (!this.is_multiple || !evt.control) this.results_hide();
 			this.search_field.set('value', "");
 			this.form_field.fireEvent("change");
 
@@ -794,7 +794,7 @@ var Chosen = new Class({
 
 				evt.preventDefault();
 				if (this.results_showing){
-					this.result_select();
+					this.result_select(evt);
 				}
 				break;
 			case 'esc':
@@ -806,6 +806,7 @@ var Chosen = new Class({
 			case 'up':
 			case 'down':
 			case 'shift':
+			case 'ctrl':
 				break;
 
 			default:
