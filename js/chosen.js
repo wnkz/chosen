@@ -2,11 +2,22 @@
 ---
 name: Chosen
 description: Creates a Picker, which can be used for anything
-authors: Patrick Filler, Jules Janssen, Jonnathan Soares
-requires: [Core/*, More/Locale]
+
+authors:
+  - Patrick Filler
+  - Jules Janssen
+  - Jonnathan Soares
+  - Grégoire Morpain
+  
+requires:
+  - Core/*
+  - More/Element.Measure
+  - More/Locale
+
 provides: Chosen
 ...
 */
+
 Elements.implement({
   chosen: function(data, options){
     return this.each(function(el){
@@ -56,11 +67,11 @@ var Chosen = new Class({
 
     if (this.is_multiple){
 
-      this.container.set('html', '<ul class="chzn-choices"><li class="search-field"><input type="text" value="' + this.default_text + '" class="default" autocomplete="off" style="width:25px;" /></li></ul><div class="chzn-drop" style="left:-9000px;"><ul class="chzn-results"></ul></div>');
+      this.container.set('html', '<ul class="chzn-choices"><li class="search-field"><input type="text" value="' + this.default_text + '" class="default chzn" autocomplete="off" style="width:25px;" /></li></ul><div class="chzn-drop" style="left:-9000px;"><ul class="chzn-results"></ul></div>');
 
     } else {
 
-      this.container.set('html', '<a href="javascript:void(0)" class="chzn-single"><span>' + this.default_text + '</span><div><b></b></div></a><div class="chzn-drop" style="left:-9000px;"><div class="chzn-search"><input type="text" autocomplete="off" /></div><ul class="chzn-results"></ul></div>');
+      this.container.set('html', '<a href="javascript:void(0)" class="chzn-single"><span>' + this.default_text + '</span><div><b></b></div></a><div class="chzn-drop" style="left:-9000px;"><div class="chzn-search"><input type="text" class="chzn" autocomplete="off" /></div><ul class="chzn-results"></ul></div>');
 
     }
 
@@ -114,7 +125,10 @@ var Chosen = new Class({
       mouseout: this.search_results_mouseout.bind(this)
     });
 
-    this.form_field.addEvent("liszt:updated", this.results_update_field.bind(this));
+    this.form_field.addEvents({
+      'liszt:updated': this.results_update_field.bind(this),
+      'liszt:clear': this.results_clear_field.bind(this)
+    });
 
     this.search_field.addEvents({
       blur: this.input_blur.bind(this),
@@ -324,6 +338,24 @@ var Chosen = new Class({
     this.result_single_selected = null;
     this.results_build();
 
+  },
+
+  results_clear_field: function() {
+    
+    if (this.is_multiple && this.choices > 0){
+
+      this.search_choices.getElements("li.search-choice").each(function(e) {
+        this.result_deselect(e.getElement('a.search-choice-close').get('rel'));
+        e.destroy();
+      }.bind(this));
+
+      this.choices = 0;
+
+    } 
+
+    this.show_search_field_default();
+    this.search_field_scale();
+    
   },
 
   result_do_highlight: function(el){
